@@ -1,4 +1,4 @@
-namespace SimpleBearerTokenApp
+namespace SimpleBearerTokenApp.Models
 {
     public class WeatherForecast
     {

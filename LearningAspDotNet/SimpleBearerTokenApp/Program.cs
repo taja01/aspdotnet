@@ -38,13 +38,18 @@ namespace SimpleBearerTokenApp
 
                 options.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
-            { securityScheme, new string[] { } }
-        });
+                {
+                    { securityScheme, Array.Empty<string>() }
+                });
             });
 
             // Define a secret key used for signing JWT tokens.
-            var secretKey = "YourSuperSecretKeyForHmacSha256";
+            // Read secret from configuration
+            var secretKey = builder.Configuration.GetValue<string>("Jwt:Secret");
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                throw new Exception("JWT secret key is not configured properly.");
+            }
             var key = Encoding.ASCII.GetBytes(secretKey);
 
             // Configure Authentication using JWT Bearer.
