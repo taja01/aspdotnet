@@ -14,9 +14,10 @@ namespace WeatherAppTests
         }
 
         [Test]
-        public async Task Test1()
+        public async Task Test1_GetWeatherForecast_ReturnsValue()
         {
-            Assert.ThrowsAsync<ApiException>(async () => await _client.GetWeatherForecastAsync().ConfigureAwait(false));
+            var forecast = await _client.GetWeatherForecastAsync();
+            Assert.That(forecast, Is.Not.Null);
         }
     }
 }

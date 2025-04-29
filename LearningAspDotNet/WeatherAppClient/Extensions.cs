@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace WeatherApp
@@ -10,7 +11,11 @@ namespace WeatherApp
             var options = new WeatherAppOptions();
             configuration.Bind(nameof(WeatherAppOptions), options);
             services.Configure<WeatherAppOptions>(configuration.GetSection(nameof(WeatherAppOptions)));
-            services.AddHttpClient<IWeatherAppClient, WeatherAppClient>(c => c.BaseAddress = new Uri(options.BaseAddress));
+
+            services.AddSingleton<IMemoryCache, MemoryCache>();
+            services.AddTransient<OAuthTokenHandler>();
+            services.AddHttpClient<IWeatherAppClient, WeatherAppClient>(c => c.BaseAddress = new Uri(options.BaseAddress))
+                .AddHttpMessageHandler<OAuthTokenHandler>();
             return services;
         }
     }
