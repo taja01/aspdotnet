@@ -9,16 +9,8 @@ namespace SimpleBearerTokenApp.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AuthController : ControllerBase
+    public class AuthController(IConfiguration configuration) : ControllerBase
     {
-        private readonly IConfiguration _configuration;
-
-        public AuthController(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
-
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginModel model)
         {
@@ -28,7 +20,7 @@ namespace SimpleBearerTokenApp.Controllers
             }
 
             // Read secret from configuration
-            var secretKey = _configuration["Jwt:Secret"];
+            var secretKey = configuration["Jwt:Secret"];
             if (string.IsNullOrEmpty(secretKey))
             {
                 throw new Exception("JWT secret key is not configured properly.");
