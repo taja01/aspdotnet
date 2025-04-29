@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherApp", "WeatherAppCli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherAppTests", "WeatherAppTests\WeatherAppTests.csproj", "{5546CD7D-E7D4-4F71-BB36-8E09E18DC128}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceUserExample", "ServiceUserExample", "{018AB797-E52B-4257-BE83-52F282206BD8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,8 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{6FFD0A1C-18EB-4BFF-A129-1CBE1054C1F4} = {018AB797-E52B-4257-BE83-52F282206BD8}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {018AB797-E52B-4257-BE83-52F282206BD8}
 		{4462ABFB-3A63-477C-8073-FAA6E9A0B5B0} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{5546CD7D-E7D4-4F71-BB36-8E09E18DC128} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
