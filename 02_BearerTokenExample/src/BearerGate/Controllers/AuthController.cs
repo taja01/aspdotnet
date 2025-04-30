@@ -24,7 +24,7 @@ namespace BearerGate.Controllers
         public IActionResult Login([FromBody] LoginModel model)
         {
             // Validate credentials.
-            if (model.Username != "test" || model.Password != "password")
+            if ((model.Username != "admin" || model.Password != "password") && (model.Username != "test" || model.Password != "password"))
             {
                 return Unauthorized();
             }
@@ -41,8 +41,8 @@ namespace BearerGate.Controllers
             // Create claims for the token.
             var claims = new[]
             {
-            new Claim(ClaimTypes.Name, model.Username)
-        };
+                new Claim(ClaimTypes.Name, model.Username)
+            };
 
             // Build security token descriptor.
             var tokenDescriptor = new SecurityTokenDescriptor

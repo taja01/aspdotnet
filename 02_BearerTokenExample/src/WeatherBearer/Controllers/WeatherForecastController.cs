@@ -17,7 +17,9 @@ namespace WeatherBearer.Controllers
         [HttpGet(Name = "GetWeatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
-            logger.LogInformation("GetWeatherForecast called.");
+            string currentUser = HttpContext.User.Identity?.Name;
+
+            logger.LogInformation("GetWeatherForecast called by user {User}", currentUser);
 
             return [.. Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
