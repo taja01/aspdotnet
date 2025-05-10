@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using MyApp.Authorization.Dummy;
@@ -27,10 +26,13 @@ namespace MyApp
             {
                 options.DefaultScheme = "Dummy";
                 options.DefaultAuthenticateScheme = "Dummy";
-                options.DefaultChallengeScheme = "Dummy";
+                // options.DefaultChallengeScheme = "Dummy";
+                // Set a default challenge scheme if you intend to use standard challenge behavior later
+                // options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddScheme<AuthenticationSchemeOptions, DummyAuthenticationHandler>("Dummy", null);
+.AddScheme<AuthenticationSchemeOptions, DummyAuthenticationHandler>("Dummy", null);
 
+            //------------------------
             builder.Services.Configure<ApiKeyOptions>(builder.Configuration.GetSection(nameof(ApiKeyOptions)));
             builder.Services.AddAuthorizationBuilder()
                 .AddPolicy("ApiKeyPolicy", policy => policy.Requirements.Add(new ApiKeyRequirement()));
