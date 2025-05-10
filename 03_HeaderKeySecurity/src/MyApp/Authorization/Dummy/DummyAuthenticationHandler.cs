@@ -8,8 +8,8 @@ namespace MyApp.Authorization.Dummy
     public class DummyAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         public DummyAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
-                  ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
-                  : base(options, logger, encoder, clock)
+                  ILoggerFactory logger, UrlEncoder encoder)
+                  : base(options, logger, encoder)
         {
         }
 
