@@ -4,15 +4,11 @@ using MyApp.Authorization.Requirements;
 
 namespace MyApp.Authorization.Handlers
 {
-    public class ApiKeyHandler : AuthorizationHandler<ApiKeyRequirement>
+    public class ApiKeyHandler(IOptions<ApiKeyOptions> apiKeyOptions) : AuthorizationHandler<ApiKeyRequirement>
     {
-        private readonly string _expectedApiKey;
+        private readonly string _expectedApiKey = apiKeyOptions.Value.ExpectedApiKey;
 
         public const string ApiKey = "x-api-key";
-        public ApiKeyHandler(IOptions<ApiKeyOptions> apiKeyOptions)
-        {
-            _expectedApiKey = apiKeyOptions.Value.ExpectedApiKey;
-        }
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ApiKeyRequirement requirement)
         {
