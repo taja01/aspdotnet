@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using MyApp.Authorization.Dummy;
 using MyApp.Authorization.Handlers;
 using MyApp.Authorization.Requirements;
@@ -30,12 +31,14 @@ namespace MyApp
             })
             .AddScheme<AuthenticationSchemeOptions, DummyAuthenticationHandler>("Dummy", null);
 
-            builder.Services.Configure<ApiKeyOptions>(builder.Configuration.GetSection("ApiKey"));
+            builder.Services.Configure<ApiKeyOptions>(builder.Configuration.GetSection(nameof(ApiKeyOptions)));
             builder.Services.AddAuthorization(options =>
             {
                 options.AddPolicy("ApiKeyPolicy", policy =>
                     policy.Requirements.Add(new ApiKeyRequirement()));
             });
+
+            builder.Services.AddScoped<IAuthorizationHandler, ApiKeyHandler>();
 
             var app = builder.Build();
 

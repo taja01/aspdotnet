@@ -5,7 +5,7 @@ namespace MyApp.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class LotteryController : Controller
+    public class LotteryController : ControllerBase
     {
         private readonly ILogger<LotteryController> _logger;
 
