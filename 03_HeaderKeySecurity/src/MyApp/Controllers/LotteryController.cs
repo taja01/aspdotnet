@@ -11,8 +11,11 @@ namespace MyApp.Controllers
 
         private readonly Random _random;
 
-        public LotteryController()
+        private static readonly List<byte[]> tickets = new List<byte[]>();
+
+        public LotteryController(ILogger<LotteryController> logger)
         {
+            _logger = logger;
             _random = new Random();
         }
 
@@ -29,6 +32,15 @@ namespace MyApp.Controllers
         public IActionResult GetLuckNumbers()
         {
             return Ok(_random.Next(1, 45));
+        }
+
+        [HttpPost]
+        [Route("PostLotteryTicket")]
+        public IActionResult PostLotteryTicket([FromBody] List<byte> numbers)
+        {
+            tickets.Add(numbers.ToArray());
+
+            return Ok();
         }
     }
 }
