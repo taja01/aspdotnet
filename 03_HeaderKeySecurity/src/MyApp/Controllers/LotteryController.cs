@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyApp.ResponseDto;
 
 namespace MyApp.Controllers
 {
@@ -41,7 +42,7 @@ namespace MyApp.Controllers
             var guid = Guid.NewGuid();
             tickets.Add(guid, numbers.ToArray());
 
-            return Ok(guid);
+            return Ok(new SumbitLotteryTicket { Id = guid });
         }
     }
 }
