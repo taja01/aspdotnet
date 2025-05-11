@@ -11,7 +11,7 @@ namespace MyApp.Controllers
 
         private readonly Random _random;
 
-        private static readonly List<byte[]> tickets = new List<byte[]>();
+        private static readonly Dictionary<Guid, byte[]> tickets = new Dictionary<Guid, byte[]>();
 
         public LotteryController(ILogger<LotteryController> logger)
         {
@@ -38,9 +38,10 @@ namespace MyApp.Controllers
         [Route("PostLotteryTicket")]
         public IActionResult PostLotteryTicket([FromBody] List<byte> numbers)
         {
-            tickets.Add(numbers.ToArray());
+            var guid = Guid.NewGuid();
+            tickets.Add(guid, numbers.ToArray());
 
-            return Ok();
+            return Ok(guid);
         }
     }
 }
