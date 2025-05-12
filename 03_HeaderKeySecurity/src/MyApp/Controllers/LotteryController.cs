@@ -52,15 +52,13 @@ namespace MyApp.Controllers
         {
             if (tickets.TryGetValue(id, out var _))
             {
-
                 tickets[id] = numbers.ToArray();
+                return Ok(new SumbitLotteryTicket { Id = id });
             }
             else
             {
-                tickets.Add(id, numbers.ToArray());
-
+                return NotFound();
             }
-            return Ok(new SumbitLotteryTicket { Id = id });
         }
 
         [HttpGet]
