@@ -38,10 +38,10 @@ namespace MyApp.Controllers
 
         [HttpPost]
         [Route("InsertLotteryTicket")]
-        public IActionResult InsertLotteryTicket([FromBody] List<byte> numbers)
+        public IActionResult InsertLotteryTicket([FromBody] RequestLotteryTicket requestLotteryTicket)
         {
             var guid = Guid.NewGuid();
-            tickets.Add(guid, numbers.ToArray());
+            tickets.Add(guid, requestLotteryTicket.Numbers.ToArray());
 
             return Ok(new SumbitLotteryTicket { Id = guid });
         }
