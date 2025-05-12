@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MyApp.RequestDto;
 using MyApp.ResponseDto;
+using MyApp.Validations;
 
 namespace MyApp.Controllers
 {
@@ -40,10 +41,33 @@ namespace MyApp.Controllers
         [Route("InsertLotteryTicket")]
         public IActionResult InsertLotteryTicket([FromBody] RequestLotteryTicket requestLotteryTicket)
         {
+            var result = ValidateRequest(requestLotteryTicket);
+            if (!result.IsValid)
+            {
+                return BadRequest(result.Errors);
+            }
+
             var guid = Guid.NewGuid();
             tickets.Add(guid, requestLotteryTicket.Numbers);
 
             return Ok(new SumbitLotteryTicket { Id = guid });
+        }
+
+        private ValidationResult ValidateRequest(RequestLotteryTicket requestLotteryTicket)
+        {
+            if (requestLotteryTicket.Numbers == null || requestLotteryTicket.Numbers.Count == 0)
+            {
+                var error = "Ticket cannot be empty";
+                return new ValidationResult { IsValid = false, Errors = [error] };
+            }
+
+            if (requestLotteryTicket.Numbers.GroupBy(x => x).Any(g => g.Count() > 1))
+            {
+                var error = "Duplicated number";
+                return new ValidationResult { IsValid = false, Errors = [error] };
+            }
+
+            return new ValidationResult { IsValid = true };
         }
 
         [HttpPut]
