@@ -13,7 +13,7 @@ namespace MyApp.Controllers
 
         private readonly Random _random;
 
-        private static readonly Dictionary<Guid, byte[]> tickets = new Dictionary<Guid, byte[]>();
+        private static readonly Dictionary<Guid, List<byte>> tickets = new Dictionary<Guid, List<byte>>();
 
         public LotteryController(ILogger<LotteryController> logger)
         {
@@ -41,7 +41,7 @@ namespace MyApp.Controllers
         public IActionResult InsertLotteryTicket([FromBody] RequestLotteryTicket requestLotteryTicket)
         {
             var guid = Guid.NewGuid();
-            tickets.Add(guid, requestLotteryTicket.Numbers.ToArray());
+            tickets.Add(guid, requestLotteryTicket.Numbers);
 
             return Ok(new SumbitLotteryTicket { Id = guid });
         }
@@ -52,7 +52,7 @@ namespace MyApp.Controllers
         {
             if (tickets.TryGetValue(id, out var _))
             {
-                tickets[id] = numbers.ToArray();
+                tickets[id] = numbers;
                 return Ok(new SumbitLotteryTicket { Id = id });
             }
             else
