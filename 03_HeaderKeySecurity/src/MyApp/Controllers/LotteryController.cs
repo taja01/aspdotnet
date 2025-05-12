@@ -36,13 +36,30 @@ namespace MyApp.Controllers
         }
 
         [HttpPost]
-        [Route("PostLotteryTicket")]
+        [Route("InsertLotteryTicket")]
         public IActionResult PostLotteryTicket([FromBody] List<byte> numbers)
         {
             var guid = Guid.NewGuid();
             tickets.Add(guid, numbers.ToArray());
 
             return Ok(new SumbitLotteryTicket { Id = guid });
+        }
+
+        [HttpPut]
+        [Route("UpdateLotteryTicket/{id}")]
+        public IActionResult PutLotteryTicket(Guid id, [FromBody] List<byte> numbers)
+        {
+            if (tickets.TryGetValue(id, out var _))
+            {
+
+                tickets[id] = numbers.ToArray();
+            }
+            else
+            {
+                tickets.Add(id, numbers.ToArray());
+
+            }
+            return Ok(new SumbitLotteryTicket { Id = id });
         }
     }
 }
