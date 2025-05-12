@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyApp.RequestDto;
 using MyApp.ResponseDto;
 
 namespace MyApp.Controllers
@@ -37,7 +38,7 @@ namespace MyApp.Controllers
 
         [HttpPost]
         [Route("InsertLotteryTicket")]
-        public IActionResult PostLotteryTicket([FromBody] List<byte> numbers)
+        public IActionResult InsertLotteryTicket([FromBody] List<byte> numbers)
         {
             var guid = Guid.NewGuid();
             tickets.Add(guid, numbers.ToArray());
@@ -47,7 +48,7 @@ namespace MyApp.Controllers
 
         [HttpPut]
         [Route("UpdateLotteryTicket/{id}")]
-        public IActionResult PutLotteryTicket(Guid id, [FromBody] List<byte> numbers)
+        public IActionResult UpdateLotteryTicket(Guid id, [FromBody] List<byte> numbers)
         {
             if (tickets.TryGetValue(id, out var _))
             {
@@ -60,6 +61,20 @@ namespace MyApp.Controllers
 
             }
             return Ok(new SumbitLotteryTicket { Id = id });
+        }
+
+        [HttpGet]
+        [Route("FetchTicket/{id}")]
+        public IActionResult FetchTicket(Guid id)
+        {
+            if (tickets.TryGetValue(id, out var value))
+            {
+                return Ok(new RequestLotteryTicket { Numbers = value.ToList() });
+            }
+            else
+            {
+                return NotFound();
+            }
         }
     }
 }
