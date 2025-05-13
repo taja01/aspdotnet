@@ -1,6 +1,7 @@
 using FluentValidation;
 using LotteryApp.Authorization.Dummy;
 using LotteryApp.Authorization.Handlers;
+using LotteryApp.Authorization.Requirements;
 using LotteryApp.RequestDto;
 using LotteryApp.Validations;
 using Microsoft.AspNetCore.Authentication;

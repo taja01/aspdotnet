@@ -7,6 +7,8 @@ namespace LotteryApp.Validations
     {
         public RequestLotteryTicketValidator()
         {
+            RuleFor(x => x).NotNull().WithMessage("Request body cannot be null.");
+
             RuleFor(x => x.Numbers)
                 .NotNull()
                 .WithMessage("Numbers cannot be null");

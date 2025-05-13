@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 using LotteryApp.RequestDto;
+using LotteryApp.ResponseDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyApp.ResponseDto;
 
 namespace LotteryApp.Controllers
 {
@@ -44,6 +44,11 @@ namespace LotteryApp.Controllers
         [Route("InsertLotteryTicket")]
         public IActionResult InsertLotteryTicket([FromBody] RequestLotteryTicket requestLotteryTicket)
         {
+            if (requestLotteryTicket == null)
+            {
+                return BadRequest("Request body cannot be null.");
+            }
+
             var result = _validator.Validate(requestLotteryTicket);
             if (!result.IsValid)
             {
