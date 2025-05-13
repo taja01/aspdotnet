@@ -1,13 +1,12 @@
 using FluentValidation;
+using LotteryApp.Authorization.Dummy;
+using LotteryApp.Authorization.Handlers;
+using LotteryApp.RequestDto;
+using LotteryApp.Validations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using MyApp.Authorization.Dummy;
-using MyApp.Authorization.Handlers;
-using MyApp.Authorization.Requirements;
-using MyApp.RequestDto;
-using MyApp.Validations;
 
-namespace MyApp
+namespace LotteryApp
 {
     public class Program
     {

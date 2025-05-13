@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
+using LotteryApp.RequestDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyApp.RequestDto;
 using MyApp.ResponseDto;
 
-namespace MyApp.Controllers
+namespace LotteryApp.Controllers
 {
     [ApiController]
     [Route("[controller]")]

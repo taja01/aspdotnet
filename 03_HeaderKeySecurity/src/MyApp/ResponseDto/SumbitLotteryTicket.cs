@@ -1,4 +1,4 @@
-﻿namespace MyApp.ResponseDto
+﻿namespace LotteryApp.ResponseDto
 {
     public class SumbitLotteryTicket
     {

@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using LotteryApp.Authorization.Requirements;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
-using MyApp.Authorization.Requirements;
 
-namespace MyApp.Authorization.Handlers
+namespace LotteryApp.Authorization.Handlers
 {
     public class ApiKeyHandler(IOptions<ApiKeyOptions> apiKeyOptions) : AuthorizationHandler<ApiKeyRequirement>
     {

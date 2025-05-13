@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
-namespace MyApp.Authorization.Dummy
+namespace LotteryApp.Authorization.Dummy
 {
     public class DummyAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
               ILoggerFactory logger, UrlEncoder encoder) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)

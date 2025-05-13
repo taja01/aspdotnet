@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace MyApp.Authorization.Requirements
+namespace LotteryApp.Authorization.Requirements
 {
 
     public class ApiKeyRequirement : IAuthorizationRequirement

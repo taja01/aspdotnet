@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using MyApp.RequestDto;
+using LotteryApp.RequestDto;
 
-namespace MyApp.Validations
+namespace LotteryApp.Validations
 {
     public class RequestLotteryTicketValidator : AbstractValidator<RequestLotteryTicket>
     {

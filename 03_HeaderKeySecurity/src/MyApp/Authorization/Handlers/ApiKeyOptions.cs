@@ -1,4 +1,4 @@
-﻿namespace MyApp.Authorization.Handlers
+﻿namespace LotteryApp.Authorization.Handlers
 {
     public class ApiKeyOptions
     {

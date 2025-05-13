@@ -1,4 +1,4 @@
-﻿namespace MyApp.RequestDto
+﻿namespace LotteryApp.RequestDto
 {
     public class RequestLotteryTicket
     {
