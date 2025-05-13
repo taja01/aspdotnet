@@ -1,8 +1,11 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using MyApp.Authorization.Dummy;
 using MyApp.Authorization.Handlers;
 using MyApp.Authorization.Requirements;
+using MyApp.RequestDto;
+using MyApp.Validations;
 
 namespace MyApp
 {
@@ -38,6 +41,9 @@ namespace MyApp
                 .AddPolicy("ApiKeyPolicy", policy => policy.Requirements.Add(new ApiKeyRequirement()));
 
             builder.Services.AddScoped<IAuthorizationHandler, ApiKeyHandler>();
+
+            builder.Services.AddScoped<IValidator<RequestLotteryTicket>, RequestLotteryTicketValidator>();
+            ////builder.Services.AddValidatorsFromAssemblyContaining<RequestLotteryTicketValidator>();
 
             var app = builder.Build();
 

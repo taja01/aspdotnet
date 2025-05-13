@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyApp.RequestDto;
 using MyApp.ResponseDto;
-using MyApp.Validations;
 
 namespace MyApp.Controllers
 {
@@ -16,10 +16,13 @@ namespace MyApp.Controllers
 
         private static readonly Dictionary<Guid, List<byte>> tickets = new Dictionary<Guid, List<byte>>();
 
-        public LotteryController(ILogger<LotteryController> logger)
+        private IValidator<RequestLotteryTicket> _validator;
+
+        public LotteryController(ILogger<LotteryController> logger, IValidator<RequestLotteryTicket> validator)
         {
             _logger = logger;
             _random = new Random();
+            _validator = validator;
         }
 
         [HttpGet]
@@ -41,7 +44,7 @@ namespace MyApp.Controllers
         [Route("InsertLotteryTicket")]
         public IActionResult InsertLotteryTicket([FromBody] RequestLotteryTicket requestLotteryTicket)
         {
-            var result = ValidateRequest(requestLotteryTicket);
+            var result = _validator.Validate(requestLotteryTicket);
             if (!result.IsValid)
             {
                 return BadRequest(result.Errors);
@@ -51,23 +54,6 @@ namespace MyApp.Controllers
             tickets.Add(guid, requestLotteryTicket.Numbers);
 
             return Ok(new SumbitLotteryTicket { Id = guid });
-        }
-
-        private ValidationResult ValidateRequest(RequestLotteryTicket requestLotteryTicket)
-        {
-            if (requestLotteryTicket.Numbers == null || requestLotteryTicket.Numbers.Count == 0)
-            {
-                var error = "Ticket cannot be empty";
-                return new ValidationResult { IsValid = false, Errors = [error] };
-            }
-
-            if (requestLotteryTicket.Numbers.GroupBy(x => x).Any(g => g.Count() > 1))
-            {
-                var error = "Duplicated number";
-                return new ValidationResult { IsValid = false, Errors = [error] };
-            }
-
-            return new ValidationResult { IsValid = true };
         }
 
         [HttpPut]
