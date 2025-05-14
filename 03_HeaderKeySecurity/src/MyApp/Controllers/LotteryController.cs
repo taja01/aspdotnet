@@ -66,6 +66,11 @@ namespace LotteryApp.Controllers
         [Route("UpdateLotteryTicket/{id}")]
         public IActionResult UpdateLotteryTicket(Guid id, [FromBody] RequestLotteryTicket requestLotteryTicket)
         {
+            if (requestLotteryTicket == null)
+            {
+                return BadRequest("Request body cannot be null.");
+            }
+
             var result = _validator.Validate(requestLotteryTicket);
             if (!result.IsValid)
             {
