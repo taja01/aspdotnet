@@ -1,4 +1,5 @@
-﻿using LotteryApp.Controllers;
+﻿using LotteryApp.Contracts;
+using LotteryApp.Controllers;
 using LotteryApp.RequestDto;
 using LotteryApp.Validations;
 using Microsoft.AspNetCore.Mvc;
@@ -13,13 +14,15 @@ namespace LotteryAppTests
         private RequestLotteryTicketValidator _validator;
         private LotteryController _sut;
         private Mock<ILogger<LotteryController>> _mockLogger;
+        private Mock<ILotteryTicketRepository> _mockRepository;
 
         [SetUp]
         public void Setup()
         {
             _mockLogger = new Mock<ILogger<LotteryController>>();
             _validator = new RequestLotteryTicketValidator();
-            _sut = new LotteryController(_mockLogger.Object, _validator);
+            _mockRepository = new Mock<ILotteryTicketRepository>();
+            _sut = new LotteryController(_mockLogger.Object, _validator, _mockRepository.Object);
         }
 
         [Test]
