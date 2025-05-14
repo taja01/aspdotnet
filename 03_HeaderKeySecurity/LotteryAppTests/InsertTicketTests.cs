@@ -1,6 +1,7 @@
 ﻿using LotteryApp.Contracts;
 using LotteryApp.Controllers;
 using LotteryApp.RequestDto;
+using LotteryApp.ResponseDto;
 using LotteryApp.Validations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -29,10 +30,10 @@ namespace LotteryAppTests
         public void BodyIsNull()
         {
             // Arrange
-            var nullRequest = default(RequestLotteryTicket);
+            var request = default(RequestLotteryTicket);
 
             // Act
-            IActionResult result = _sut.InsertLotteryTicket(nullRequest);
+            IActionResult result = _sut.InsertLotteryTicket(request);
 
             // Assert
             Assert.Multiple(() =>
@@ -48,10 +49,10 @@ namespace LotteryAppTests
         public void EmptyArray()
         {
             // Arrange
-            var nullRequest = new RequestLotteryTicket { Numbers = [] };
+            var request = new RequestLotteryTicket { Numbers = [] };
 
             // Act
-            IActionResult result = _sut.InsertLotteryTicket(nullRequest);
+            IActionResult result = _sut.InsertLotteryTicket(request);
 
             // Assert
             Assert.Multiple(() =>
@@ -73,10 +74,10 @@ namespace LotteryAppTests
         public void OutOfRangeNumbers(byte number)
         {
             // Arrange
-            var nullRequest = new RequestLotteryTicket { Numbers = [number] };
+            var request = new RequestLotteryTicket { Numbers = [number] };
 
             // Act
-            IActionResult result = _sut.InsertLotteryTicket(nullRequest);
+            IActionResult result = _sut.InsertLotteryTicket(request);
 
             // Assert
             Assert.Multiple(() =>
@@ -97,10 +98,10 @@ namespace LotteryAppTests
         public void DuplicatedNumber()
         {
             // Arrange
-            var nullRequest = new RequestLotteryTicket { Numbers = [1, 1] };
+            var request = new RequestLotteryTicket { Numbers = [1, 1] };
 
             // Act
-            IActionResult result = _sut.InsertLotteryTicket(nullRequest);
+            IActionResult result = _sut.InsertLotteryTicket(request);
 
             // Assert
             Assert.Multiple(() =>
@@ -121,10 +122,10 @@ namespace LotteryAppTests
         public void MultipleIssue()
         {
             // Arrange
-            var nullRequest = new RequestLotteryTicket { Numbers = [1, 101, 0, 0] };
+            var request = new RequestLotteryTicket { Numbers = [1, 101, 0, 0] };
 
             // Act
-            IActionResult result = _sut.InsertLotteryTicket(nullRequest);
+            IActionResult result = _sut.InsertLotteryTicket(request);
 
             // Assert
             Assert.Multiple(() =>
@@ -141,6 +142,31 @@ namespace LotteryAppTests
                 Assert.That(validationErrors[1].ErrorMessage, Is.EqualTo("Each number must be between 1 and 100"));
                 Assert.That(validationErrors[2].ErrorMessage, Is.EqualTo("Each number must be between 1 and 100"));
                 Assert.That(validationErrors[3].ErrorMessage, Is.EqualTo("Duplicated numbers are not allowed"));
+            });
+        }
+
+        [Test]
+        public void InsertTest()
+        {
+            // Arrange
+            var guid = Guid.NewGuid();
+            var request = new RequestLotteryTicket { Numbers = [1, 2] };
+            _mockRepository.Setup(m => m.AddTicket(It.IsAny<List<byte>>()))
+                .Returns(guid);
+
+            // Act
+            IActionResult result = _sut.InsertLotteryTicket(request);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.InstanceOf<OkObjectResult>(), "Expected a OkObjectResult result.");
+                var okObject = result as OkObjectResult;
+                Assert.That(okObject.Value, Is.InstanceOf<SumbitLotteryTicket>(), "Expected the OkObjectResult value to be a SumbitLotteryTicket.");
+
+                var response = okObject.Value as SumbitLotteryTicket;
+                Assert.That(response, Is.Not.Null, "The response should not be null.");
+                Assert.That(response.Id, Is.EqualTo(guid), "The Id returned does not match the expected Guid.");
             });
         }
     }
