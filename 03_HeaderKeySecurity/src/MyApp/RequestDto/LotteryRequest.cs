@@ -1,6 +1,6 @@
 ﻿namespace LotteryApp.RequestDto
 {
-    public class RequestLotteryTicket
+    public class LotteryRequest
     {
         public List<byte> Numbers { get; set; }
     }

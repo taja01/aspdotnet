@@ -30,7 +30,7 @@ public class UpdateLotteryTicketTests : BaseTest
     public void BodyIsNull()
     {
         // Arrange
-        var nullRequest = default(RequestLotteryTicket);
+        var nullRequest = default(LotteryRequest);
         _mockRepository.Setup(expression: m => m.UpdateTicket(It.IsAny<Guid>(), It.IsAny<List<byte>>())).Returns(true);
 
         // Act
@@ -50,7 +50,7 @@ public class UpdateLotteryTicketTests : BaseTest
     public void EmptyArray()
     {
         // Arrange
-        var nullRequest = new RequestLotteryTicket { Numbers = [] };
+        var nullRequest = new LotteryRequest { Numbers = [] };
         _mockRepository.Setup(expression: m => m.UpdateTicket(It.IsAny<Guid>(), It.IsAny<List<byte>>())).Returns(true);
 
         // Act
@@ -76,7 +76,7 @@ public class UpdateLotteryTicketTests : BaseTest
     public void OutOfRangeNumbers(byte number)
     {
         // Arrange
-        var nullRequest = new RequestLotteryTicket { Numbers = [number] };
+        var nullRequest = new LotteryRequest { Numbers = [number] };
         _mockRepository.Setup(expression: m => m.UpdateTicket(It.IsAny<Guid>(), It.IsAny<List<byte>>())).Returns(true);
 
         // Act
@@ -101,7 +101,7 @@ public class UpdateLotteryTicketTests : BaseTest
     public void DuplicatedNumber()
     {
         // Arrange
-        var nullRequest = new RequestLotteryTicket { Numbers = [1, 1] };
+        var nullRequest = new LotteryRequest { Numbers = [1, 1] };
         _mockRepository.Setup(expression: m => m.UpdateTicket(It.IsAny<Guid>(), It.IsAny<List<byte>>())).Returns(true);
 
 
@@ -127,7 +127,7 @@ public class UpdateLotteryTicketTests : BaseTest
     public void MultipleIssue()
     {
         // Arrange
-        var nullRequest = new RequestLotteryTicket { Numbers = [1, 101, 0, 0] };
+        var nullRequest = new LotteryRequest { Numbers = [1, 101, 0, 0] };
         _mockRepository.Setup(expression: m => m.UpdateTicket(It.IsAny<Guid>(), It.IsAny<List<byte>>())).Returns(true);
 
         // Act
@@ -158,7 +158,7 @@ public class UpdateLotteryTicketTests : BaseTest
         _mockRepository.Setup(expression: m => m.UpdateTicket(It.IsAny<Guid>(), It.IsAny<List<byte>>())).Returns(false);
 
         // Act
-        var result = _sut.UpdateLotteryTicket(Guid.NewGuid(), new RequestLotteryTicket { Numbers = [1, 2, 3] });
+        var result = _sut.UpdateLotteryTicket(Guid.NewGuid(), new LotteryRequest { Numbers = [1, 2, 3] });
 
         // Assert
         Assert.Multiple(() =>
@@ -175,14 +175,14 @@ public class UpdateLotteryTicketTests : BaseTest
         var guid = Guid.NewGuid();
 
         // Act
-        var result = _sut.UpdateLotteryTicket(guid, new RequestLotteryTicket { Numbers = [1, 2, 3] });
+        var result = _sut.UpdateLotteryTicket(guid, new LotteryRequest { Numbers = [1, 2, 3] });
 
         // Assert
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.InstanceOf<OkObjectResult>(), "Expected a OkObjectResult result.");
 
-            var submitResponse = (result as OkObjectResult).Value as SumbitLotteryTicket;
+            var submitResponse = (result as OkObjectResult).Value as LotteryTicketResponse;
 
             Assert.That(submitResponse, Is.Not.Null);
             Assert.That(submitResponse.Id, Is.EqualTo(guid));

@@ -30,7 +30,7 @@ namespace LotteryAppTests
         public void BodyIsNull()
         {
             // Arrange
-            var request = default(RequestLotteryTicket);
+            var request = default(LotteryRequest);
 
             // Act
             IActionResult result = _sut.InsertLotteryTicket(request);
@@ -49,7 +49,7 @@ namespace LotteryAppTests
         public void EmptyArray()
         {
             // Arrange
-            var request = new RequestLotteryTicket { Numbers = [] };
+            var request = new LotteryRequest { Numbers = [] };
 
             // Act
             IActionResult result = _sut.InsertLotteryTicket(request);
@@ -74,7 +74,7 @@ namespace LotteryAppTests
         public void OutOfRangeNumbers(byte number)
         {
             // Arrange
-            var request = new RequestLotteryTicket { Numbers = [number] };
+            var request = new LotteryRequest { Numbers = [number] };
 
             // Act
             IActionResult result = _sut.InsertLotteryTicket(request);
@@ -98,7 +98,7 @@ namespace LotteryAppTests
         public void DuplicatedNumber()
         {
             // Arrange
-            var request = new RequestLotteryTicket { Numbers = [1, 1] };
+            var request = new LotteryRequest { Numbers = [1, 1] };
 
             // Act
             IActionResult result = _sut.InsertLotteryTicket(request);
@@ -122,7 +122,7 @@ namespace LotteryAppTests
         public void MultipleIssue()
         {
             // Arrange
-            var request = new RequestLotteryTicket { Numbers = [1, 101, 0, 0] };
+            var request = new LotteryRequest { Numbers = [1, 101, 0, 0] };
 
             // Act
             IActionResult result = _sut.InsertLotteryTicket(request);
@@ -150,7 +150,7 @@ namespace LotteryAppTests
         {
             // Arrange
             var guid = Guid.NewGuid();
-            var request = new RequestLotteryTicket { Numbers = [1, 2] };
+            var request = new LotteryRequest { Numbers = [1, 2] };
             _mockRepository.Setup(m => m.AddTicket(It.IsAny<List<byte>>()))
                 .Returns(guid);
 
@@ -162,9 +162,9 @@ namespace LotteryAppTests
             {
                 Assert.That(result, Is.InstanceOf<OkObjectResult>(), "Expected a OkObjectResult result.");
                 var okObject = result as OkObjectResult;
-                Assert.That(okObject.Value, Is.InstanceOf<SumbitLotteryTicket>(), "Expected the OkObjectResult value to be a SumbitLotteryTicket.");
+                Assert.That(okObject.Value, Is.InstanceOf<LotteryTicketResponse>(), "Expected the OkObjectResult value to be a LotteryTicketResponse.");
 
-                var response = okObject.Value as SumbitLotteryTicket;
+                var response = okObject.Value as LotteryTicketResponse;
                 Assert.That(response, Is.Not.Null, "The response should not be null.");
                 Assert.That(response.Id, Is.EqualTo(guid), "The Id returned does not match the expected Guid.");
             });

@@ -3,7 +3,7 @@ using LotteryApp.RequestDto;
 
 namespace LotteryApp.Validations
 {
-    public class RequestLotteryTicketValidator : AbstractValidator<RequestLotteryTicket>
+    public class RequestLotteryTicketValidator : AbstractValidator<LotteryRequest>
     {
         public RequestLotteryTicketValidator()
         {

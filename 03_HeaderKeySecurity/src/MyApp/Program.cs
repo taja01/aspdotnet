@@ -42,7 +42,7 @@ namespace LotteryApp
 
             builder.Services.AddScoped<IAuthorizationHandler, ApiKeyHandler>();
 
-            builder.Services.AddScoped<IValidator<RequestLotteryTicket>, RequestLotteryTicketValidator>();
+            builder.Services.AddScoped<IValidator<LotteryRequest>, RequestLotteryTicketValidator>();
             ////builder.Services.AddValidatorsFromAssemblyContaining<RequestLotteryTicketValidator>();
 
             var app = builder.Build();

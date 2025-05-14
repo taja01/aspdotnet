@@ -1,6 +1,6 @@
 ﻿namespace LotteryApp.ResponseDto
 {
-    public class SumbitLotteryTicket
+    public class LotteryTicketResponse
     {
         public Guid Id { get; set; }
     }

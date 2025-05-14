@@ -15,11 +15,11 @@ namespace LotteryApp.Controllers
 
         private readonly Random _random;
 
-        private IValidator<RequestLotteryTicket> _validator;
+        private IValidator<LotteryRequest> _validator;
 
         private ILotteryTicketRepository _ticketRepository;
 
-        public LotteryController(ILogger<LotteryController> logger, IValidator<RequestLotteryTicket> validator, ILotteryTicketRepository lotteryTicketRepository)
+        public LotteryController(ILogger<LotteryController> logger, IValidator<LotteryRequest> validator, ILotteryTicketRepository lotteryTicketRepository)
         {
             _logger = logger;
             _random = new Random();
@@ -44,7 +44,7 @@ namespace LotteryApp.Controllers
 
         [HttpPost]
         [Route("InsertLotteryTicket")]
-        public IActionResult InsertLotteryTicket([FromBody] RequestLotteryTicket requestLotteryTicket)
+        public IActionResult InsertLotteryTicket([FromBody] LotteryRequest requestLotteryTicket)
         {
             if (requestLotteryTicket == null)
             {
@@ -59,12 +59,12 @@ namespace LotteryApp.Controllers
 
             var guid = _ticketRepository.AddTicket(requestLotteryTicket.Numbers);
 
-            return Ok(new SumbitLotteryTicket { Id = guid });
+            return Ok(new LotteryTicketResponse { Id = guid });
         }
 
         [HttpPut]
         [Route("UpdateLotteryTicket/{id}")]
-        public IActionResult UpdateLotteryTicket(Guid id, [FromBody] RequestLotteryTicket requestLotteryTicket)
+        public IActionResult UpdateLotteryTicket(Guid id, [FromBody] LotteryRequest requestLotteryTicket)
         {
             if (requestLotteryTicket == null)
             {
@@ -79,7 +79,7 @@ namespace LotteryApp.Controllers
 
             if (_ticketRepository.UpdateTicket(id, requestLotteryTicket.Numbers))
             {
-                return Ok(new SumbitLotteryTicket { Id = id });
+                return Ok(new LotteryTicketResponse { Id = id });
             }
             else
             {
@@ -98,7 +98,7 @@ namespace LotteryApp.Controllers
             }
             else
             {
-                return Ok(new RequestLotteryTicket { Numbers = numbers });
+                return Ok(new LotteryRequest { Numbers = numbers });
             }
         }
     }
