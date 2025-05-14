@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using LotteryApp.Contracts;
 using LotteryApp.RequestDto;
 using LotteryApp.ResponseDto;
 using Microsoft.AspNetCore.Authorization;
@@ -14,15 +15,16 @@ namespace LotteryApp.Controllers
 
         private readonly Random _random;
 
-        private static readonly Dictionary<Guid, List<byte>> tickets = new Dictionary<Guid, List<byte>>();
-
         private IValidator<RequestLotteryTicket> _validator;
 
-        public LotteryController(ILogger<LotteryController> logger, IValidator<RequestLotteryTicket> validator)
+        private ILotteryTicketRepository _ticketRepository;
+
+        public LotteryController(ILogger<LotteryController> logger, IValidator<RequestLotteryTicket> validator, ILotteryTicketRepository lotteryTicketRepository)
         {
             _logger = logger;
             _random = new Random();
             _validator = validator;
+            _ticketRepository = lotteryTicketRepository;
         }
 
         [HttpGet]
@@ -55,19 +57,23 @@ namespace LotteryApp.Controllers
                 return BadRequest(result.Errors);
             }
 
-            var guid = Guid.NewGuid();
-            tickets.Add(guid, requestLotteryTicket.Numbers);
+            var guid = _ticketRepository.AddTicket(requestLotteryTicket.Numbers);
 
             return Ok(new SumbitLotteryTicket { Id = guid });
         }
 
         [HttpPut]
         [Route("UpdateLotteryTicket/{id}")]
-        public IActionResult UpdateLotteryTicket(Guid id, [FromBody] List<byte> numbers)
+        public IActionResult UpdateLotteryTicket(Guid id, [FromBody] RequestLotteryTicket requestLotteryTicket)
         {
-            if (tickets.TryGetValue(id, out var _))
+            var result = _validator.Validate(requestLotteryTicket);
+            if (!result.IsValid)
             {
-                tickets[id] = numbers;
+                return BadRequest(result.Errors);
+            }
+
+            if (_ticketRepository.UpdateTicket(id, requestLotteryTicket.Numbers))
+            {
                 return Ok(new SumbitLotteryTicket { Id = id });
             }
             else
@@ -80,13 +86,14 @@ namespace LotteryApp.Controllers
         [Route("FetchTicket/{id}")]
         public IActionResult FetchTicket(Guid id)
         {
-            if (tickets.TryGetValue(id, out var value))
+            var numbers = _ticketRepository.GetTicket(id);
+            if (numbers == null)
             {
-                return Ok(new RequestLotteryTicket { Numbers = value.ToList() });
+                return NotFound();
             }
             else
             {
-                return NotFound();
+                return Ok(new RequestLotteryTicket { Numbers = numbers });
             }
         }
     }
