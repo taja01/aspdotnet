@@ -138,7 +138,6 @@ namespace LotteryAppTests
                 Assert.That(validationErrors[1].ErrorMessage, Is.EqualTo("Each number must be between 1 and 100"));
                 Assert.That(validationErrors[2].ErrorMessage, Is.EqualTo("Each number must be between 1 and 100"));
                 Assert.That(validationErrors[3].ErrorMessage, Is.EqualTo("Duplicated numbers are not allowed"));
-
             });
         }
     }
