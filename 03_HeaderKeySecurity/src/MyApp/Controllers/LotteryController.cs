@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LotteryApp.Controllers
 {
     [ApiController]
+    [Produces("application/json")]
     [Route("[controller]")]
     public class LotteryController : ControllerBase
     {
@@ -28,6 +29,7 @@ namespace LotteryApp.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
         [Authorize(Policy = "ApiKeyPolicy")]
         [Route("GetLuckNumberSecured")]
         public IActionResult GetLuckNumberSecured()
@@ -36,6 +38,7 @@ namespace LotteryApp.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
         [Route("GetLuckNumbers")]
         public IActionResult GetLuckNumbers()
         {
@@ -43,6 +46,8 @@ namespace LotteryApp.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LotteryTicketResponse))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Route("InsertLotteryTicket")]
         public IActionResult InsertLotteryTicket([FromBody] LotteryRequest requestLotteryTicket)
         {
@@ -63,6 +68,9 @@ namespace LotteryApp.Controllers
         }
 
         [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LotteryTicketResponse))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Route("UpdateLotteryTicket/{id}")]
         public IActionResult UpdateLotteryTicket(Guid id, [FromBody] LotteryRequest requestLotteryTicket)
         {
@@ -88,6 +96,8 @@ namespace LotteryApp.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LotteryRequest))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Route("FetchTicket/{id}")]
         public IActionResult FetchTicket(Guid id)
         {
