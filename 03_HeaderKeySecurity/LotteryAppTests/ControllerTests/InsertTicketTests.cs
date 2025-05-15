@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace LotteryAppTests
+namespace LotteryAppTests.ControllerTests
 {
     [TestFixture]
     public class InsertTicketTests : BaseTest

@@ -15,8 +15,6 @@ namespace LotteryApp.Controllers
     [Route("[controller]")]
     public class LotteryController : ControllerBase
     {
-
-
         private readonly ILogger<LotteryController> _logger;
 
         private IValidator<LotteryRequest> _validator;

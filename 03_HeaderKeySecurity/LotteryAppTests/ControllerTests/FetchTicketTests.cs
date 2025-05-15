@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace LotteryAppTests;
+namespace LotteryAppTests.ControllerTests;
 
 public class FetchTicketTests : BaseTest
 {
