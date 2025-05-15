@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using LotteryApp.Constants;
 using LotteryApp.Contracts;
 using LotteryApp.RequestDto;
 using LotteryApp.ResponseDto;
@@ -14,8 +15,7 @@ namespace LotteryApp.Controllers
     [Route("[controller]")]
     public class LotteryController : ControllerBase
     {
-        private const int MinLotteryNumber = 1;
-        private const int MaxLotteryNumber = 45;
+
 
         private readonly ILogger<LotteryController> _logger;
 
@@ -41,7 +41,7 @@ namespace LotteryApp.Controllers
         {
             _logger.LogInformation("Generating a single lucky number.");
 
-            int luckyNumber = RandomNumberGenerator.GetInt32(MinLotteryNumber, MaxLotteryNumber + 1);
+            int luckyNumber = RandomNumberGenerator.GetInt32(LotteryRules.MinLotteryNumber, LotteryRules.MaxLotteryNumber + 1);
             return Ok(luckyNumber);
         }
 

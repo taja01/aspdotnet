@@ -58,7 +58,7 @@ public class UpdateLotteryTicketTests : BaseTest
 
         // Assert
         var expectedErrorDict = new Dictionary<string, List<string>>();
-        expectedErrorDict.Add("Numbers", ["At least one number is required"]);
+        expectedErrorDict.Add("Numbers", ["7 numbers are required"]);
 
         Assert.Multiple(() =>
         {
@@ -74,11 +74,11 @@ public class UpdateLotteryTicketTests : BaseTest
     }
 
     [TestCase(0)]
-    [TestCase(101)]
+    [TestCase(36)]
     public async Task OutOfRangeNumbers(byte number)
     {
         // Arrange
-        var nullRequest = new LotteryRequest { Numbers = [number] };
+        var nullRequest = new LotteryRequest { Numbers = [number, 1, 2, 3, 4, 5, 6] };
         _mockRepository.Setup(expression: m => m.UpdateTicketAsync(It.IsAny<Guid>(), It.IsAny<List<byte>>())).ReturnsAsync(true);
 
         // Act
@@ -86,7 +86,7 @@ public class UpdateLotteryTicketTests : BaseTest
 
         // Assert
         var expectedErrorDict = new Dictionary<string, List<string>>();
-        expectedErrorDict.Add("Numbers[0]", ["Each number must be between 1 and 100"]);
+        expectedErrorDict.Add("Numbers[0]", ["Each number must be between 1 and 35"]);
 
         Assert.Multiple(() =>
         {
@@ -105,7 +105,7 @@ public class UpdateLotteryTicketTests : BaseTest
     public async Task DuplicatedNumber()
     {
         // Arrange
-        var request = new LotteryRequest { Numbers = [1, 1] };
+        var request = new LotteryRequest { Numbers = [2, 3, 4, 5, 6, 1, 1] };
         _mockRepository.Setup(expression: m => m.UpdateTicketAsync(It.IsAny<Guid>(), It.IsAny<List<byte>>()))
             .ReturnsAsync(true);
 
@@ -134,7 +134,7 @@ public class UpdateLotteryTicketTests : BaseTest
     public async Task MultipleIssue()
     {
         // Arrange
-        var request = new LotteryRequest { Numbers = [1, 101, 0, 0] };
+        var request = new LotteryRequest { Numbers = [1, 2, 3, 3, 0, 36, 0] };
         _mockRepository.Setup(expression: m => m.UpdateTicketAsync(It.IsAny<Guid>(), It.IsAny<List<byte>>()))
             .ReturnsAsync(true);
 
@@ -143,9 +143,9 @@ public class UpdateLotteryTicketTests : BaseTest
 
         // Assert
         var expectedErrorDict = new Dictionary<string, List<string>>();
-        expectedErrorDict.Add("Numbers[1]", ["Each number must be between 1 and 100"]);
-        expectedErrorDict.Add("Numbers[2]", ["Each number must be between 1 and 100"]);
-        expectedErrorDict.Add("Numbers[3]", ["Each number must be between 1 and 100"]);
+        expectedErrorDict.Add("Numbers[4]", ["Each number must be between 1 and 35"]);
+        expectedErrorDict.Add("Numbers[5]", ["Each number must be between 1 and 35"]);
+        expectedErrorDict.Add("Numbers[6]", ["Each number must be between 1 and 35"]);
         expectedErrorDict.Add("Numbers", ["Duplicated numbers are not allowed"]);
 
         Assert.Multiple(() =>
@@ -168,7 +168,7 @@ public class UpdateLotteryTicketTests : BaseTest
         _mockRepository.Setup(expression: m => m.UpdateTicketAsync(It.IsAny<Guid>(), It.IsAny<List<byte>>())).ReturnsAsync(false);
 
         // Act
-        var result = await _sut.UpdateLotteryTicket(Guid.NewGuid(), new LotteryRequest { Numbers = [1, 2, 3] }).ConfigureAwait(false);
+        var result = await _sut.UpdateLotteryTicket(Guid.NewGuid(), new LotteryRequest { Numbers = [1, 2, 3, 4, 5, 6, 7] }).ConfigureAwait(false);
 
         // Assert
         Assert.That(result, Is.InstanceOf<NotFoundResult>(), "Expected a NotFoundResult result.");
@@ -183,7 +183,7 @@ public class UpdateLotteryTicketTests : BaseTest
         var guid = Guid.NewGuid();
 
         // Act
-        var result = await _sut.UpdateLotteryTicket(guid, new LotteryRequest { Numbers = [1, 2, 3] }).ConfigureAwait(false);
+        var result = await _sut.UpdateLotteryTicket(guid, new LotteryRequest { Numbers = [1, 2, 3, 4, 5, 6, 7] }).ConfigureAwait(false);
 
         // Assert
         Assert.Multiple(() =>

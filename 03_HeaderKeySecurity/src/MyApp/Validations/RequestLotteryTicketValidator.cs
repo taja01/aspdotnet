@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using LotteryApp.Constants;
 using LotteryApp.RequestDto;
 
 namespace LotteryApp.Validations
@@ -14,12 +15,12 @@ namespace LotteryApp.Validations
                 .WithMessage("Numbers cannot be null");
 
             RuleFor(x => x.Numbers)
-                .Must(numbers => numbers != null && numbers.Count > 0)
-                .WithMessage("At least one number is required");
+                .Must(numbers => numbers != null && numbers.Count == LotteryRules.NumberOfBallsToPick)
+                .WithMessage($"{LotteryRules.NumberOfBallsToPick} numbers are required");
 
             RuleForEach(x => x.Numbers)
-                .InclusiveBetween((byte)1, (byte)100)
-                .WithMessage("Each number must be between 1 and 100");
+                .InclusiveBetween(LotteryRules.MinLotteryNumber, LotteryRules.MaxLotteryNumber)
+                .WithMessage($"Each number must be between {LotteryRules.MinLotteryNumber} and {LotteryRules.MaxLotteryNumber}");
 
             RuleFor(x => x.Numbers)
                 .Must(numbers => numbers == null || numbers.GroupBy(n => n)

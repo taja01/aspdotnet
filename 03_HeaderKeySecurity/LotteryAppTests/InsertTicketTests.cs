@@ -56,7 +56,7 @@ namespace LotteryAppTests
 
             // Assert
             var expectedErrorDict = new Dictionary<string, List<string>>();
-            expectedErrorDict.Add("Numbers", ["At least one number is required"]);
+            expectedErrorDict.Add("Numbers", ["7 numbers are required"]);
 
             Assert.Multiple(() =>
             {
@@ -72,18 +72,18 @@ namespace LotteryAppTests
         }
 
         [TestCase(0)]
-        [TestCase(101)]
+        [TestCase(36)]
         public async Task OutOfRangeNumbers(byte number)
         {
             // Arrange
-            var request = new LotteryRequest { Numbers = [number] };
+            var request = new LotteryRequest { Numbers = [number, 1, 2, 3, 4, 5, 6] };
 
             // Act
             IActionResult result = await _sut.InsertLotteryTicket(request).ConfigureAwait(false);
 
             // Assert
             var expectedErrorDict = new Dictionary<string, List<string>>();
-            expectedErrorDict.Add("Numbers[0]", ["Each number must be between 1 and 100"]);
+            expectedErrorDict.Add("Numbers[0]", ["Each number must be between 1 and 35"]);
 
             Assert.Multiple(() =>
             {
@@ -102,7 +102,7 @@ namespace LotteryAppTests
         public async Task DuplicatedNumber()
         {
             // Arrange
-            var request = new LotteryRequest { Numbers = [1, 1] };
+            var request = new LotteryRequest { Numbers = [1, 2, 3, 4, 5, 6, 6] };
 
             // Act
             IActionResult result = await _sut.InsertLotteryTicket(request).ConfigureAwait(false);
@@ -128,16 +128,16 @@ namespace LotteryAppTests
         public async Task MultipleIssue()
         {
             // Arrange
-            var request = new LotteryRequest { Numbers = [1, 101, 0, 0] };
+            var request = new LotteryRequest { Numbers = [1, 36, 0, 0, 3, 4, 5] };
 
             // Act
             IActionResult result = await _sut.InsertLotteryTicket(request).ConfigureAwait(false);
 
             // Assert
             var expectedErrorDict = new Dictionary<string, List<string>>();
-            expectedErrorDict.Add("Numbers[1]", ["Each number must be between 1 and 100"]);
-            expectedErrorDict.Add("Numbers[2]", ["Each number must be between 1 and 100"]);
-            expectedErrorDict.Add("Numbers[3]", ["Each number must be between 1 and 100"]);
+            expectedErrorDict.Add("Numbers[1]", ["Each number must be between 1 and 35"]);
+            expectedErrorDict.Add("Numbers[2]", ["Each number must be between 1 and 35"]);
+            expectedErrorDict.Add("Numbers[3]", ["Each number must be between 1 and 35"]);
             expectedErrorDict.Add("Numbers", ["Duplicated numbers are not allowed"]);
 
             Assert.Multiple(() =>
@@ -158,7 +158,7 @@ namespace LotteryAppTests
         {
             // Arrange
             var guid = Guid.NewGuid();
-            var request = new LotteryRequest { Numbers = [1, 2] };
+            var request = new LotteryRequest { Numbers = [1, 2, 3, 4, 5, 6, 7] };
             _mockRepository.Setup(m => m.AddTicketAsync(It.IsAny<List<byte>>()))
                 .ReturnsAsync(guid);
 
