@@ -2,6 +2,8 @@ using FluentValidation;
 using LotteryApp.Authorization.Dummy;
 using LotteryApp.Authorization.Handlers;
 using LotteryApp.Authorization.Requirements;
+using LotteryApp.Contracts;
+using LotteryApp.Repositories;
 using LotteryApp.RequestDto;
 using LotteryApp.Validations;
 using Microsoft.AspNetCore.Authentication;
@@ -44,6 +46,8 @@ namespace LotteryApp
 
             builder.Services.AddScoped<IValidator<LotteryRequest>, RequestLotteryTicketValidator>();
             ////builder.Services.AddValidatorsFromAssemblyContaining<RequestLotteryTicketValidator>();
+
+            builder.Services.AddSingleton<ILotteryTicketRepository, InMemoryLotteryTicketRepository>();
 
             var app = builder.Build();
 
