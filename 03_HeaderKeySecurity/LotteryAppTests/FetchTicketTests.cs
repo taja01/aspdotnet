@@ -1,6 +1,6 @@
 ﻿using LotteryApp.Contracts;
 using LotteryApp.Controllers;
-using LotteryApp.RequestDto;
+using LotteryApp.ResponseDto;
 using LotteryApp.Validations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -54,9 +54,9 @@ public class FetchTicketTests : BaseTest
         {
             Assert.That(result, Is.InstanceOf<OkObjectResult>(), "Expected a OkObjectResult result.");
             var okObject = result as OkObjectResult;
-            Assert.That(okObject.Value, Is.InstanceOf<LotteryRequest>(), "Expected the OkObjectResult value to be a LotteryTicketResponse.");
+            Assert.That(okObject.Value, Is.InstanceOf<LotteryTicketDetailsResponse>(), "Expected the OkObjectResult value to be a LotteryTicketResponse.");
 
-            var response = okObject.Value as LotteryRequest;
+            var response = okObject.Value as LotteryTicketDetailsResponse;
             Assert.That(response, Is.Not.Null, "The response should not be null.");
             Assert.That(response.Numbers, Is.EquivalentTo(numbers), "The Id returned does not match the expected Guid.");
         });

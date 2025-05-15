@@ -57,17 +57,19 @@ public class UpdateLotteryTicketTests : BaseTest
         IActionResult result = _sut.UpdateLotteryTicket(Guid.NewGuid(), nullRequest);
 
         // Assert
+        var expectedErrorDict = new Dictionary<string, List<string>>();
+        expectedErrorDict.Add("Numbers", ["At least one number is required"]);
+
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>(), "Expected a BadRequest result.");
             var badRequest = result as BadRequestObjectResult;
             Assert.That(badRequest, Is.Not.Null, "BadRequestObjectResult should not be null.");
 
-            var validationErrors = badRequest.Value as List<FluentValidation.Results.ValidationFailure>;
+            var validationErrors = badRequest.Value as ErrorResponse;
 
-            Assert.That(validationErrors, Has.Count.EqualTo(1));
-
-            Assert.That(validationErrors[0].ErrorMessage, Is.EqualTo("At least one number is required"));
+            Assert.That(validationErrors.Errors, Has.Count.EqualTo(1));
+            Assert.That(validationErrors.Errors, Is.EqualTo(expectedErrorDict));
         });
     }
 
@@ -83,17 +85,19 @@ public class UpdateLotteryTicketTests : BaseTest
         IActionResult result = _sut.UpdateLotteryTicket(Guid.NewGuid(), nullRequest);
 
         // Assert
+        var expectedErrorDict = new Dictionary<string, List<string>>();
+        expectedErrorDict.Add("Numbers[0]", ["Each number must be between 1 and 100"]);
+
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>(), "Expected a BadRequest result.");
             var badRequest = result as BadRequestObjectResult;
             Assert.That(badRequest, Is.Not.Null, "BadRequestObjectResult should not be null.");
 
-            var validationErrors = badRequest.Value as List<FluentValidation.Results.ValidationFailure>;
+            var validationErrors = badRequest.Value as ErrorResponse;
 
-            Assert.That(validationErrors, Has.Count.EqualTo(1));
-
-            Assert.That(validationErrors[0].ErrorMessage, Is.EqualTo("Each number must be between 1 and 100"));
+            Assert.That(validationErrors.Errors, Has.Count.EqualTo(1));
+            Assert.That(validationErrors.Errors, Is.EqualTo(expectedErrorDict));
         });
     }
 
@@ -109,17 +113,19 @@ public class UpdateLotteryTicketTests : BaseTest
         IActionResult result = _sut.UpdateLotteryTicket(Guid.NewGuid(), nullRequest);
 
         // Assert
+        var expectedErrorDict = new Dictionary<string, List<string>>();
+        expectedErrorDict.Add("Numbers", ["Duplicated numbers are not allowed"]);
+
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>(), "Expected a BadRequest result.");
             var badRequest = result as BadRequestObjectResult;
             Assert.That(badRequest, Is.Not.Null, "BadRequestObjectResult should not be null.");
 
-            var validationErrors = badRequest.Value as List<FluentValidation.Results.ValidationFailure>;
+            var validationErrors = badRequest.Value as ErrorResponse;
 
-            Assert.That(validationErrors, Has.Count.EqualTo(1));
-
-            Assert.That(validationErrors[0].ErrorMessage, Is.EqualTo("Duplicated numbers are not allowed"));
+            Assert.That(validationErrors.Errors, Has.Count.EqualTo(1));
+            Assert.That(validationErrors.Errors, Is.EqualTo(expectedErrorDict));
         });
     }
 
@@ -134,20 +140,22 @@ public class UpdateLotteryTicketTests : BaseTest
         IActionResult result = _sut.UpdateLotteryTicket(Guid.NewGuid(), nullRequest);
 
         // Assert
+        var expectedErrorDict = new Dictionary<string, List<string>>();
+        expectedErrorDict.Add("Numbers[1]", ["Each number must be between 1 and 100"]);
+        expectedErrorDict.Add("Numbers[2]", ["Each number must be between 1 and 100"]);
+        expectedErrorDict.Add("Numbers[3]", ["Each number must be between 1 and 100"]);
+        expectedErrorDict.Add("Numbers", ["Duplicated numbers are not allowed"]);
+
         Assert.Multiple(() =>
         {
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>(), "Expected a BadRequest result.");
             var badRequest = result as BadRequestObjectResult;
             Assert.That(badRequest, Is.Not.Null, "BadRequestObjectResult should not be null.");
 
-            var validationErrors = badRequest.Value as List<FluentValidation.Results.ValidationFailure>;
+            var validationErrors = badRequest.Value as ErrorResponse;
 
-            Assert.That(validationErrors, Has.Count.EqualTo(4));
-
-            Assert.That(validationErrors[0].ErrorMessage, Is.EqualTo("Each number must be between 1 and 100"));
-            Assert.That(validationErrors[1].ErrorMessage, Is.EqualTo("Each number must be between 1 and 100"));
-            Assert.That(validationErrors[2].ErrorMessage, Is.EqualTo("Each number must be between 1 and 100"));
-            Assert.That(validationErrors[3].ErrorMessage, Is.EqualTo("Duplicated numbers are not allowed"));
+            Assert.That(validationErrors.Errors, Has.Count.EqualTo(4));
+            Assert.That(validationErrors.Errors, Is.EqualTo(expectedErrorDict));
         });
     }
 
@@ -161,10 +169,8 @@ public class UpdateLotteryTicketTests : BaseTest
         var result = _sut.UpdateLotteryTicket(Guid.NewGuid(), new LotteryRequest { Numbers = [1, 2, 3] });
 
         // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(result, Is.InstanceOf<NotFoundResult>(), "Expected a NotFoundResult result.");
-        });
+        Assert.That(result, Is.InstanceOf<NotFoundResult>(), "Expected a NotFoundResult result.");
+
     }
 
     [Test]
