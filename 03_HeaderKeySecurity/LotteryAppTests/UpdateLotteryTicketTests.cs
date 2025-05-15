@@ -27,14 +27,14 @@ public class UpdateLotteryTicketTests : BaseTest
     }
 
     [Test]
-    public void BodyIsNull()
+    public async Task BodyIsNull()
     {
         // Arrange
-        var nullRequest = default(LotteryRequest);
-        _mockRepository.Setup(expression: m => m.UpdateTicket(It.IsAny<Guid>(), It.IsAny<List<byte>>())).Returns(true);
+        var request = default(LotteryRequest);
+        _mockRepository.Setup(expression: m => m.UpdateTicketAsync(It.IsAny<Guid>(), It.IsAny<List<byte>>())).ReturnsAsync(true);
 
         // Act
-        IActionResult result = _sut.UpdateLotteryTicket(Guid.NewGuid(), nullRequest);
+        IActionResult result = await _sut.UpdateLotteryTicket(Guid.NewGuid(), request).ConfigureAwait(false);
 
         // Assert
         Assert.Multiple(() =>
@@ -47,14 +47,14 @@ public class UpdateLotteryTicketTests : BaseTest
     }
 
     [Test]
-    public void EmptyArray()
+    public async Task EmptyArray()
     {
         // Arrange
-        var nullRequest = new LotteryRequest { Numbers = [] };
-        _mockRepository.Setup(expression: m => m.UpdateTicket(It.IsAny<Guid>(), It.IsAny<List<byte>>())).Returns(true);
+        var request = new LotteryRequest { Numbers = [] };
+        _mockRepository.Setup(expression: m => m.UpdateTicketAsync(It.IsAny<Guid>(), It.IsAny<List<byte>>())).ReturnsAsync(true);
 
         // Act
-        IActionResult result = _sut.UpdateLotteryTicket(Guid.NewGuid(), nullRequest);
+        IActionResult result = await _sut.UpdateLotteryTicket(Guid.NewGuid(), request).ConfigureAwait(false);
 
         // Assert
         var expectedErrorDict = new Dictionary<string, List<string>>();
@@ -75,14 +75,14 @@ public class UpdateLotteryTicketTests : BaseTest
 
     [TestCase(0)]
     [TestCase(101)]
-    public void OutOfRangeNumbers(byte number)
+    public async Task OutOfRangeNumbers(byte number)
     {
         // Arrange
         var nullRequest = new LotteryRequest { Numbers = [number] };
-        _mockRepository.Setup(expression: m => m.UpdateTicket(It.IsAny<Guid>(), It.IsAny<List<byte>>())).Returns(true);
+        _mockRepository.Setup(expression: m => m.UpdateTicketAsync(It.IsAny<Guid>(), It.IsAny<List<byte>>())).ReturnsAsync(true);
 
         // Act
-        IActionResult result = _sut.UpdateLotteryTicket(Guid.NewGuid(), nullRequest);
+        IActionResult result = await _sut.UpdateLotteryTicket(Guid.NewGuid(), nullRequest);
 
         // Assert
         var expectedErrorDict = new Dictionary<string, List<string>>();
@@ -102,15 +102,16 @@ public class UpdateLotteryTicketTests : BaseTest
     }
 
     [Test]
-    public void DuplicatedNumber()
+    public async Task DuplicatedNumber()
     {
         // Arrange
-        var nullRequest = new LotteryRequest { Numbers = [1, 1] };
-        _mockRepository.Setup(expression: m => m.UpdateTicket(It.IsAny<Guid>(), It.IsAny<List<byte>>())).Returns(true);
+        var request = new LotteryRequest { Numbers = [1, 1] };
+        _mockRepository.Setup(expression: m => m.UpdateTicketAsync(It.IsAny<Guid>(), It.IsAny<List<byte>>()))
+            .ReturnsAsync(true);
 
 
         // Act
-        IActionResult result = _sut.UpdateLotteryTicket(Guid.NewGuid(), nullRequest);
+        IActionResult result = await _sut.UpdateLotteryTicket(Guid.NewGuid(), request).ConfigureAwait(false);
 
         // Assert
         var expectedErrorDict = new Dictionary<string, List<string>>();
@@ -130,14 +131,15 @@ public class UpdateLotteryTicketTests : BaseTest
     }
 
     [Test]
-    public void MultipleIssue()
+    public async Task MultipleIssue()
     {
         // Arrange
-        var nullRequest = new LotteryRequest { Numbers = [1, 101, 0, 0] };
-        _mockRepository.Setup(expression: m => m.UpdateTicket(It.IsAny<Guid>(), It.IsAny<List<byte>>())).Returns(true);
+        var request = new LotteryRequest { Numbers = [1, 101, 0, 0] };
+        _mockRepository.Setup(expression: m => m.UpdateTicketAsync(It.IsAny<Guid>(), It.IsAny<List<byte>>()))
+            .ReturnsAsync(true);
 
         // Act
-        IActionResult result = _sut.UpdateLotteryTicket(Guid.NewGuid(), nullRequest);
+        IActionResult result = await _sut.UpdateLotteryTicket(Guid.NewGuid(), request).ConfigureAwait(false);
 
         // Assert
         var expectedErrorDict = new Dictionary<string, List<string>>();
@@ -160,13 +162,13 @@ public class UpdateLotteryTicketTests : BaseTest
     }
 
     [Test]
-    public void TicketNotExistsTest()
+    public async Task TicketNotExistsTest()
     {
         // Arrange
-        _mockRepository.Setup(expression: m => m.UpdateTicket(It.IsAny<Guid>(), It.IsAny<List<byte>>())).Returns(false);
+        _mockRepository.Setup(expression: m => m.UpdateTicketAsync(It.IsAny<Guid>(), It.IsAny<List<byte>>())).ReturnsAsync(false);
 
         // Act
-        var result = _sut.UpdateLotteryTicket(Guid.NewGuid(), new LotteryRequest { Numbers = [1, 2, 3] });
+        var result = await _sut.UpdateLotteryTicket(Guid.NewGuid(), new LotteryRequest { Numbers = [1, 2, 3] }).ConfigureAwait(false);
 
         // Assert
         Assert.That(result, Is.InstanceOf<NotFoundResult>(), "Expected a NotFoundResult result.");
@@ -174,14 +176,14 @@ public class UpdateLotteryTicketTests : BaseTest
     }
 
     [Test]
-    public void UpdateTest()
+    public async Task UpdateTest()
     {
         // Arrange
-        _mockRepository.Setup(expression: m => m.UpdateTicket(It.IsAny<Guid>(), It.IsAny<List<byte>>())).Returns(true);
+        _mockRepository.Setup(expression: m => m.UpdateTicketAsync(It.IsAny<Guid>(), It.IsAny<List<byte>>())).ReturnsAsync(true);
         var guid = Guid.NewGuid();
 
         // Act
-        var result = _sut.UpdateLotteryTicket(guid, new LotteryRequest { Numbers = [1, 2, 3] });
+        var result = await _sut.UpdateLotteryTicket(guid, new LotteryRequest { Numbers = [1, 2, 3] }).ConfigureAwait(false);
 
         // Assert
         Assert.Multiple(() =>

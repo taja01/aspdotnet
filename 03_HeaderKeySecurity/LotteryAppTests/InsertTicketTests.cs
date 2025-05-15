@@ -27,13 +27,13 @@ namespace LotteryAppTests
         }
 
         [Test]
-        public void BodyIsNull()
+        public async Task BodyIsNull()
         {
             // Arrange
             var request = default(LotteryRequest);
 
             // Act
-            IActionResult result = _sut.InsertLotteryTicket(request);
+            IActionResult result = await _sut.InsertLotteryTicket(request).ConfigureAwait(false);
 
             // Assert
             Assert.Multiple(() =>
@@ -46,13 +46,13 @@ namespace LotteryAppTests
         }
 
         [Test]
-        public void EmptyArray()
+        public async Task EmptyArray()
         {
             // Arrange
             var request = new LotteryRequest { Numbers = [] };
 
             // Act
-            IActionResult result = _sut.InsertLotteryTicket(request);
+            IActionResult result = await _sut.InsertLotteryTicket(request).ConfigureAwait(false);
 
             // Assert
             var expectedErrorDict = new Dictionary<string, List<string>>();
@@ -73,13 +73,13 @@ namespace LotteryAppTests
 
         [TestCase(0)]
         [TestCase(101)]
-        public void OutOfRangeNumbers(byte number)
+        public async Task OutOfRangeNumbers(byte number)
         {
             // Arrange
             var request = new LotteryRequest { Numbers = [number] };
 
             // Act
-            IActionResult result = _sut.InsertLotteryTicket(request);
+            IActionResult result = await _sut.InsertLotteryTicket(request).ConfigureAwait(false);
 
             // Assert
             var expectedErrorDict = new Dictionary<string, List<string>>();
@@ -99,13 +99,13 @@ namespace LotteryAppTests
         }
 
         [Test]
-        public void DuplicatedNumber()
+        public async Task DuplicatedNumber()
         {
             // Arrange
             var request = new LotteryRequest { Numbers = [1, 1] };
 
             // Act
-            IActionResult result = _sut.InsertLotteryTicket(request);
+            IActionResult result = await _sut.InsertLotteryTicket(request).ConfigureAwait(false);
 
             // Assert
             var expectedErrorDict = new Dictionary<string, List<string>>();
@@ -125,13 +125,13 @@ namespace LotteryAppTests
         }
 
         [Test]
-        public void MultipleIssue()
+        public async Task MultipleIssue()
         {
             // Arrange
             var request = new LotteryRequest { Numbers = [1, 101, 0, 0] };
 
             // Act
-            IActionResult result = _sut.InsertLotteryTicket(request);
+            IActionResult result = await _sut.InsertLotteryTicket(request).ConfigureAwait(false);
 
             // Assert
             var expectedErrorDict = new Dictionary<string, List<string>>();
@@ -154,16 +154,16 @@ namespace LotteryAppTests
         }
 
         [Test]
-        public void InsertTest()
+        public async Task InsertTest()
         {
             // Arrange
             var guid = Guid.NewGuid();
             var request = new LotteryRequest { Numbers = [1, 2] };
-            _mockRepository.Setup(m => m.AddTicket(It.IsAny<List<byte>>()))
-                .Returns(guid);
+            _mockRepository.Setup(m => m.AddTicketAsync(It.IsAny<List<byte>>()))
+                .ReturnsAsync(guid);
 
             // Act
-            IActionResult result = _sut.InsertLotteryTicket(request);
+            IActionResult result = await _sut.InsertLotteryTicket(request).ConfigureAwait(false);
 
             // Assert
 

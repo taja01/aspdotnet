@@ -2,8 +2,9 @@
 {
     public interface ILotteryTicketRepository
     {
-        Guid AddTicket(List<byte> numbers);
-        bool UpdateTicket(Guid id, List<byte> numbers);
-        List<byte> GetTicket(Guid id);
+        Task<Guid> AddTicketAsync(IEnumerable<byte> numbers);
+        Task<bool> UpdateTicketAsync(Guid id, IEnumerable<byte> numbers);
+        Task<List<byte>> GetTicketAsync(Guid id);
+
     }
 }

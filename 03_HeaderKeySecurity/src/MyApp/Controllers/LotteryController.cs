@@ -55,7 +55,7 @@ namespace LotteryApp.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
         [Route("InsertLotteryTicket")]
-        public IActionResult InsertLotteryTicket([FromBody] LotteryRequest requestLotteryTicket)
+        public async Task<IActionResult> InsertLotteryTicket([FromBody] LotteryRequest requestLotteryTicket)
         {
             _logger.LogInformation("Received request to insert lottery ticket.");
 
@@ -75,7 +75,7 @@ namespace LotteryApp.Controllers
 
             try
             {
-                var guid = _ticketRepository.AddTicket(requestLotteryTicket.Numbers);
+                var guid = await _ticketRepository.AddTicketAsync(requestLotteryTicket.Numbers);
                 _logger.LogInformation("Lottery ticket with ID {TicketId} inserted successfully.", guid);
                 return Ok(new LotteryTicketResponse { Id = guid });
             }
@@ -98,7 +98,7 @@ namespace LotteryApp.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
 
-        public IActionResult UpdateLotteryTicket(Guid id, [FromBody] LotteryRequest requestLotteryTicket)
+        public async Task<IActionResult> UpdateLotteryTicket(Guid id, [FromBody] LotteryRequest requestLotteryTicket)
         {
             _logger.LogInformation("Received request to update lottery ticket with ID: {TicketId}", id);
 
@@ -118,7 +118,7 @@ namespace LotteryApp.Controllers
 
             try
             {
-                if (_ticketRepository.UpdateTicket(id, requestLotteryTicket.Numbers))
+                if (await _ticketRepository.UpdateTicketAsync(id, requestLotteryTicket.Numbers))
                 {
                     _logger.LogInformation("Lottery ticket with ID {TicketId} updated successfully.", id);
                     return Ok(new LotteryTicketResponse { Id = id });
@@ -146,13 +146,13 @@ namespace LotteryApp.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
         [Route("FetchTicket/{id}")]
-        public IActionResult FetchTicket(Guid id)
+        public async Task<IActionResult> FetchTicket(Guid id)
         {
             _logger.LogInformation("Received request to fetch lottery ticket with ID: {TicketId}", id);
 
             try
             {
-                var numbers = _ticketRepository.GetTicket(id);
+                var numbers = await _ticketRepository.GetTicketAsync(id);
                 if (numbers == null || !numbers.Any())
                 {
                     _logger.LogWarning("Lottery ticket with ID {TicketId} not found.", id);

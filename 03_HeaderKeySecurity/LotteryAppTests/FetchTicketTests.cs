@@ -25,10 +25,10 @@ public class FetchTicketTests : BaseTest
     }
 
     [Test]
-    public void TicketNotFoundTest()
+    public async Task TicketNotFoundTest()
     {
         // Act
-        var result = _sut.FetchTicket(Guid.NewGuid());
+        var result = await _sut.FetchTicket(Guid.NewGuid()).ConfigureAwait(false);
 
         // Assert
         Assert.Multiple(() =>
@@ -38,16 +38,16 @@ public class FetchTicketTests : BaseTest
     }
 
     [Test]
-    public void TicketFoundTest()
+    public async Task TicketFoundTest()
     {
         // Arrange
         var numbers = new List<byte> { 1, 2, 3, 4, 5 };
 
-        _mockRepository.Setup(m => m.GetTicket(It.IsAny<Guid>()))
-        .Returns([1, 2, 3, 4, 5]);
+        _mockRepository.Setup(m => m.GetTicketAsync(It.IsAny<Guid>()))
+        .ReturnsAsync([1, 2, 3, 4, 5]);
 
         // Act
-        var result = _sut.FetchTicket(Guid.NewGuid());
+        var result = await _sut.FetchTicket(Guid.NewGuid()).ConfigureAwait(false);
 
         // Assert
         Assert.Multiple(() =>

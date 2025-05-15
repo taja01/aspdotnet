@@ -6,31 +6,31 @@ namespace LotteryApp.Repositories
     {
         private readonly Dictionary<Guid, List<byte>> _tickets = new Dictionary<Guid, List<byte>>();
 
-        public Guid AddTicket(List<byte> numbers)
+        public Task<Guid> AddTicketAsync(IEnumerable<byte> numbers)
         {
             var guid = Guid.NewGuid();
 
-            _tickets.Add(guid, numbers);
+            _tickets.Add(guid, numbers.ToList());
 
-            return guid;
+            return Task.FromResult(guid);
         }
 
-        public bool UpdateTicket(Guid id, List<byte> numbers)
+        public Task<bool> UpdateTicketAsync(Guid id, IEnumerable<byte> numbers)
         {
             if (_tickets.ContainsKey(id))
             {
-                _tickets[id] = numbers;
-                return true;
+                _tickets[id] = numbers.ToList();
+                return Task.FromResult(true);
             }
 
-            return false;
+            return Task.FromResult(false);
         }
 
-        public List<byte> GetTicket(Guid id)
+        public Task<List<byte>> GetTicketAsync(Guid id)
         {
             _tickets.TryGetValue(id, out var ticket);
 
-            return ticket;
+            return Task.FromResult(ticket);
         }
     }
 }
