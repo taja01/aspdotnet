@@ -257,7 +257,6 @@ namespace LotteryApp.Controllers
                 YourNumbers = userNumbers
             };
 
-
             var matchCounter = 0;
             foreach (var ball in winnerDraw.WinningNumbers)
             {

@@ -1,5 +1,6 @@
 ﻿using LotteryApp.Contracts;
 using LotteryApp.Controllers;
+using LotteryApp.Repositories;
 using LotteryApp.ResponseDto;
 using LotteryApp.Validations;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ public class FetchTicketTests : BaseTest
     private LotteryController _sut;
     private Mock<ILogger<LotteryController>> _mockLogger;
     private Mock<ILotteryTicketRepository> _mockRepository;
+    private Mock<IWinningNumbersRepository> _mockWinningNumbersRepository;
 
     [SetUp]
     public void Setup()
@@ -21,7 +23,8 @@ public class FetchTicketTests : BaseTest
         _mockLogger = new Mock<ILogger<LotteryController>>();
         _validator = new RequestLotteryTicketValidator();
         _mockRepository = new Mock<ILotteryTicketRepository>();
-        _sut = new LotteryController(_mockLogger.Object, _validator, _mockRepository.Object);
+        _mockWinningNumbersRepository = new Mock<IWinningNumbersRepository>();
+        _sut = new LotteryController(_mockLogger.Object, _validator, _mockRepository.Object, _mockWinningNumbersRepository.Object);
     }
 
     [Test]
