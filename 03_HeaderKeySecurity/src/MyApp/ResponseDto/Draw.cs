@@ -1,4 +1,4 @@
-﻿namespace LotteryApp
+﻿namespace LotteryApp.ResponseDto
 {
     public class Draw
     {

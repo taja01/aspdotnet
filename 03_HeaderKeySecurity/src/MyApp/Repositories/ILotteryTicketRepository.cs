@@ -7,6 +7,7 @@ namespace LotteryApp.Contracts
         Task<Guid> AddTicketAsync(IEnumerable<byte> numbers);
         Task<bool> UpdateTicketAsync(Guid id, IEnumerable<byte> numbers);
         Task<List<byte>> GetTicketAsync(Guid id);
+        Task<Dictionary<Guid, List<byte>>> GetAllTicketsAsync();
     }
 
     public interface ILotteryStatistics

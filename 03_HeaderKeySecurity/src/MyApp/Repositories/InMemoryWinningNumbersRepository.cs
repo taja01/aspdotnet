@@ -1,4 +1,5 @@
-﻿
+﻿using LotteryApp.ResponseDto;
+
 namespace LotteryApp.Repositories
 {
     public class InMemoryWinningNumbersRepository : IWinningNumbersRepository

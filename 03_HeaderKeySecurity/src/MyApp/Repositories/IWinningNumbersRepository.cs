@@ -1,4 +1,6 @@
-﻿namespace LotteryApp.Repositories
+﻿using LotteryApp.ResponseDto;
+
+namespace LotteryApp.Repositories
 {
     public interface IWinningNumbersRepository
     {

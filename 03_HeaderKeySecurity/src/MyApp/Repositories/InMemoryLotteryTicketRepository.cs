@@ -72,5 +72,10 @@ namespace LotteryApp.Repositories
                 return Task.FromResult(leastFrequentNumbers);
             }
         }
+
+        public Task<Dictionary<Guid, List<byte>>> GetAllTicketsAsync()
+        {
+            return Task.FromResult(_tickets);
+        }
     }
 }

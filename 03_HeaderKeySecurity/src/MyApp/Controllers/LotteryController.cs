@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using LotteryApp.Constants;
 using LotteryApp.Contracts;
+using LotteryApp.Models;
 using LotteryApp.Repositories;
 using LotteryApp.RequestDto;
 using LotteryApp.ResponseDto;
@@ -59,7 +60,7 @@ namespace LotteryApp.Controllers
         [Route("InsertLotteryTicket")]
         public async Task<IActionResult> InsertLotteryTicket([FromBody] LotteryRequest requestLotteryTicket)
         {
-            _logger.LogInformation("Received request to insert lottery ticket.");
+            _logger.LogInformation("Received request to insert lottery userNumbers.");
 
             // TODO: try this
             // Model binding typically handles null body. FluentValidation will handle required properties.
@@ -71,19 +72,19 @@ namespace LotteryApp.Controllers
             var result = _validator.Validate(requestLotteryTicket);
             if (!result.IsValid)
             {
-                _logger.LogWarning("Lottery ticket insertion failed due to validation errors: {Errors}", JsonSerializer.Serialize(result.Errors));
+                _logger.LogWarning("Lottery userNumbers insertion failed due to validation errors: {Errors}", JsonSerializer.Serialize(result.Errors));
                 return BadRequest(CreateErrorResponse(result.Errors));
             }
 
             try
             {
                 var guid = await _ticketRepository.AddTicketAsync(requestLotteryTicket.Numbers);
-                _logger.LogInformation("Lottery ticket with ID {TicketId} inserted successfully.", guid);
+                _logger.LogInformation("Lottery userNumbers with ID {TicketId} inserted successfully.", guid);
                 return Ok(new LotteryTicketResponse { Id = guid });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while adding a lottery ticket.");
+                _logger.LogError(ex, "An error occurred while adding a lottery userNumbers.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse { Message = "An unexpected error occurred." });
             }
         }
@@ -102,7 +103,7 @@ namespace LotteryApp.Controllers
 
         public async Task<IActionResult> UpdateLotteryTicket(Guid id, [FromBody] LotteryRequest requestLotteryTicket)
         {
-            _logger.LogInformation("Received request to update lottery ticket with ID: {TicketId}", id);
+            _logger.LogInformation("Received request to update lottery userNumbers with ID: {TicketId}", id);
 
             // TODO: try this
             // Model binding typically handles null body. FluentValidation will handle required properties.
@@ -114,7 +115,7 @@ namespace LotteryApp.Controllers
             var result = _validator.Validate(requestLotteryTicket);
             if (!result.IsValid)
             {
-                _logger.LogWarning("Lottery ticket update failed for ID {TicketId} due to validation errors: {Errors}", id, JsonSerializer.Serialize(result.Errors));
+                _logger.LogWarning("Lottery userNumbers update failed for ID {TicketId} due to validation errors: {Errors}", id, JsonSerializer.Serialize(result.Errors));
                 return BadRequest(CreateErrorResponse(result.Errors));
             }
 
@@ -122,18 +123,18 @@ namespace LotteryApp.Controllers
             {
                 if (await _ticketRepository.UpdateTicketAsync(id, requestLotteryTicket.Numbers))
                 {
-                    _logger.LogInformation("Lottery ticket with ID {TicketId} updated successfully.", id);
+                    _logger.LogInformation("Lottery userNumbers with ID {TicketId} updated successfully.", id);
                     return Ok(new LotteryTicketResponse { Id = id });
                 }
                 else
                 {
-                    _logger.LogWarning("Lottery ticket with ID {TicketId} not found for update.", id);
+                    _logger.LogWarning("Lottery userNumbers with ID {TicketId} not found for update.", id);
                     return NotFound();
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while updating lottery ticket with ID: {TicketId}", id);
+                _logger.LogError(ex, "An error occurred while updating lottery userNumbers with ID: {TicketId}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse { Message = "An unexpected error occurred." });
             }
         }
@@ -150,25 +151,25 @@ namespace LotteryApp.Controllers
         [Route("FetchTicket/{id}")]
         public async Task<IActionResult> FetchTicket(Guid id)
         {
-            _logger.LogInformation("Received request to fetch lottery ticket with ID: {TicketId}", id);
+            _logger.LogInformation("Received request to fetch lottery userNumbers with ID: {TicketId}", id);
 
             try
             {
                 var numbers = await _ticketRepository.GetTicketAsync(id);
                 if (numbers == null || !numbers.Any())
                 {
-                    _logger.LogWarning("Lottery ticket with ID {TicketId} not found.", id);
+                    _logger.LogWarning("Lottery userNumbers with ID {TicketId} not found.", id);
                     return NotFound();
                 }
                 else
                 {
-                    _logger.LogInformation("Lottery ticket with ID {TicketId} fetched successfully.", id);
+                    _logger.LogInformation("Lottery userNumbers with ID {TicketId} fetched successfully.", id);
                     return Ok(new LotteryTicketDetailsResponse { Id = id, Numbers = numbers });
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while fetching lottery ticket with ID: {TicketId}", id);
+                _logger.LogError(ex, "An error occurred while fetching lottery userNumbers with ID: {TicketId}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse { Message = "An unexpected error occurred." });
             }
         }
@@ -198,6 +199,86 @@ namespace LotteryApp.Controllers
             }
         }
 
+        [HttpGet("CheckAllTicketsForLastDraw")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DrawAnalysis))]
+        public async Task<IActionResult> CheckAllTicketsForLastDraw()
+        {
+            var winnerNumbers = await _winningNumbersRepository.GetLatestDrawAsync();
+            var allTickets = await _ticketRepository.GetAllTicketsAsync();
+
+            var result = new List<DrawAnalysis>();
+
+            foreach (var tickets in allTickets)
+            {
+                var r = AnalyseNumbers(winnerNumbers, tickets.Value);
+                result.Add(r);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("CheckTicketsForLastDraw/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DrawAnalysis))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
+        public async Task<IActionResult> CheckTicketsForLastDraw(Guid id)
+        {
+            try
+            {
+                var winnerNumbers = await _winningNumbersRepository.GetLatestDrawAsync();
+                if (winnerNumbers == null)
+                {
+                    _logger.LogWarning("Cannot check ticket {TicketId}: No latest draw found.", id);
+                    return NotFound(new ErrorResponse { Message = "No lottery draws have been performed yet." });
+                }
+
+                var ticketNumbers = await _ticketRepository.GetTicketAsync(id);
+                if (ticketNumbers == null)
+                {
+                    _logger.LogWarning("Ticket with ID {TicketId} not found.", id);
+                    return NotFound(new ErrorResponse { Message = $"Ticket with ID {id} not found." });
+                }
+
+                var result = AnalyseNumbers(winnerNumbers, ticketNumbers);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while checking ticket {TicketId} for the last draw.", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse { Message = "An unexpected error occurred." });
+            }
+        }
+
+        private DrawAnalysis AnalyseNumbers(Draw winnerDraw, List<byte> userNumbers)
+        {
+            var result = new DrawAnalysis
+            {
+                WinnerNumbers = winnerDraw.WinningNumbers,
+                YourNumbers = userNumbers
+            };
+
+
+            var matchCounter = 0;
+            foreach (var ball in winnerDraw.WinningNumbers)
+            {
+                if (userNumbers.Contains(ball))
+                {
+                    matchCounter++;
+                    result.Matches.Add(ball);
+                }
+            }
+
+            result.ResultTier = matchCounter switch
+            {
+                7 => LotteryResultTier.JackPot,
+                6 => LotteryResultTier.JustMissed,
+                5 => LotteryResultTier.PoorLuck,
+                _ => LotteryResultTier.Unlucky
+            };
+
+            return result;
+        }
+
         private ErrorResponse CreateErrorResponse(IList<FluentValidation.Results.ValidationFailure> errors)
         {
             var errorDetails = errors
@@ -216,7 +297,8 @@ namespace LotteryApp.Controllers
 
         private static List<byte> DrawNumbers()
         {
-            var numbers = Enumerable.Range(LotteryRules.MinLotteryNumber, LotteryRules.MaxLotteryNumber).ToList();
+            var range = LotteryRules.MaxLotteryNumber - LotteryRules.MinLotteryNumber + 1;
+            var numbers = Enumerable.Range(LotteryRules.MinLotteryNumber, range).ToList();
             var luckyNumbers = new List<byte>();
 
             for (int i = 0; i < LotteryRules.NumberOfBallsToPick; i++)
