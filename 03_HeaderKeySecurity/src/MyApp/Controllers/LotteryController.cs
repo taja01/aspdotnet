@@ -29,18 +29,27 @@ namespace LotteryApp.Controllers
         }
 
         /// <summary>
-        /// Generates a single cryptographically secure "lucky" number.
+        /// Generates a single cryptographically secure "lucky" numbers.
         /// </summary>
-        /// <returns>A random number between 1 and 45.</returns>
-        [HttpGet("GetLuckyNumber")]
+        /// <returns>A random number between 1 and 35.</returns>
+        [HttpGet("GetLuckyNumbers")]
         [Authorize(Policy = "ApiKeyPolicy")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
         public IActionResult GetLuckyNumber()
         {
-            _logger.LogInformation("Generating a single lucky number.");
+            _logger.LogInformation("Generating lucky numbers.");
 
-            int luckyNumber = RandomNumberGenerator.GetInt32(LotteryRules.MinLotteryNumber, LotteryRules.MaxLotteryNumber + 1);
-            return Ok(luckyNumber);
+            var numbers = Enumerable.Range(LotteryRules.MinLotteryNumber, LotteryRules.MaxLotteryNumber).ToList();
+            var luckyNumbers = new List<int>();
+
+            for (int i = 0; i < LotteryRules.NumberOfBallsToPick; i++)
+            {
+                var index = RandomNumberGenerator.GetInt32(0, numbers.Count);
+                luckyNumbers.Add(numbers[index]);
+                numbers.RemoveAt(index);
+            }
+
+            return Ok(luckyNumbers.Order());
         }
 
         /// <summary>
