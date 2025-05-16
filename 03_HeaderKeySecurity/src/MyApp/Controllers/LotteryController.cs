@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using LotteryApp.Constants;
 using LotteryApp.Contracts;
+using LotteryApp.Repositories;
 using LotteryApp.RequestDto;
 using LotteryApp.ResponseDto;
 using Microsoft.AspNetCore.Authorization;
@@ -20,12 +21,14 @@ namespace LotteryApp.Controllers
         private IValidator<LotteryRequest> _validator;
 
         private ILotteryTicketRepository _ticketRepository;
+        private IWinningNumbersRepository _winningNumbersRepository;
 
-        public LotteryController(ILogger<LotteryController> logger, IValidator<LotteryRequest> validator, ILotteryTicketRepository lotteryTicketRepository)
+        public LotteryController(ILogger<LotteryController> logger, IValidator<LotteryRequest> validator, ILotteryTicketRepository lotteryTicketRepository, IWinningNumbersRepository winningNumbersRepository)
         {
             _logger = logger;
             _validator = validator;
             _ticketRepository = lotteryTicketRepository;
+            _winningNumbersRepository = winningNumbersRepository;
         }
 
         /// <summary>
@@ -39,17 +42,9 @@ namespace LotteryApp.Controllers
         {
             _logger.LogInformation("Generating lucky numbers.");
 
-            var numbers = Enumerable.Range(LotteryRules.MinLotteryNumber, LotteryRules.MaxLotteryNumber).ToList();
-            var luckyNumbers = new List<int>();
+            var luckyNumbers = DrawNumbers();
 
-            for (int i = 0; i < LotteryRules.NumberOfBallsToPick; i++)
-            {
-                var index = RandomNumberGenerator.GetInt32(0, numbers.Count);
-                luckyNumbers.Add(numbers[index]);
-                numbers.RemoveAt(index);
-            }
-
-            return Ok(luckyNumbers.Order());
+            return Ok(luckyNumbers);
         }
 
         /// <summary>
@@ -178,6 +173,31 @@ namespace LotteryApp.Controllers
             }
         }
 
+        [HttpPost("PerformDraw")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Draw))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
+        public async Task<IActionResult> PerformDraw()
+        {
+            _logger.LogInformation("Admin requested to perform a new lottery draw.");
+
+            try
+            {
+                var luckyNumbers = DrawNumbers();
+
+                var draw = await _winningNumbersRepository.AddDrawAsync(luckyNumbers);
+
+
+                _logger.LogInformation("New lottery draw performed successfully with ID: {DrawId}", draw.Id);
+
+                return Ok(draw);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while performing a lottery draw.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse { Message = "An unexpected error occurred." });
+            }
+        }
+
         private ErrorResponse CreateErrorResponse(IList<FluentValidation.Results.ValidationFailure> errors)
         {
             var errorDetails = errors
@@ -192,6 +212,21 @@ namespace LotteryApp.Controllers
                 Message = "Validation failed. Please check the provided data.",
                 Errors = errorDetails
             };
+        }
+
+        private static List<byte> DrawNumbers()
+        {
+            var numbers = Enumerable.Range(LotteryRules.MinLotteryNumber, LotteryRules.MaxLotteryNumber).ToList();
+            var luckyNumbers = new List<byte>();
+
+            for (int i = 0; i < LotteryRules.NumberOfBallsToPick; i++)
+            {
+                var index = RandomNumberGenerator.GetInt32(0, numbers.Count);
+                luckyNumbers.Add((byte)numbers[index]);
+                numbers.RemoveAt(index);
+            }
+
+            return luckyNumbers.Order().ToList();
         }
     }
 }
