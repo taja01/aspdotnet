@@ -49,6 +49,8 @@ namespace LotteryApp
 
             builder.Services.AddSingleton<ILotteryTicketRepository, InMemoryLotteryTicketRepository>();
 
+            builder.Services.AddSingleton<IWinningNumbersRepository, InMemoryWinningNumbersRepository>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
