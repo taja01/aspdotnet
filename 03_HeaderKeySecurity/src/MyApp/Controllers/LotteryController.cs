@@ -174,8 +174,8 @@ namespace LotteryApp.Controllers
             var errorDetails = errors
                                .GroupBy(x => x.PropertyName)
                                .ToDictionary(
-                                   g => g.Key,
-                                   g => g.Select(x => x.ErrorMessage).ToList()
+                                        g => g.Key,
+                                        g => g.Select(x => x.ErrorMessage).ToList()
                                );
 
             return new ErrorResponse

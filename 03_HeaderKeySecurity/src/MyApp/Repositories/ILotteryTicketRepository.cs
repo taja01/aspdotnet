@@ -1,10 +1,20 @@
-﻿namespace LotteryApp.Contracts
+﻿using LotteryApp.ResponseDto.Statistics;
+
+namespace LotteryApp.Contracts
 {
-    public interface ILotteryTicketRepository
+    public interface ILotteryTicketRepository : ILotteryStatistics
     {
         Task<Guid> AddTicketAsync(IEnumerable<byte> numbers);
         Task<bool> UpdateTicketAsync(Guid id, IEnumerable<byte> numbers);
         Task<List<byte>> GetTicketAsync(Guid id);
+    }
 
+    public interface ILotteryStatistics
+    {
+        Task<long> TicketCountsAsync();
+
+        Task<List<NumberFrequency>> MostFrequentNumbersAsync(int count = 5);
+
+        Task<List<NumberFrequency>> LeastFrequentNumbersAsync(int count = 5);
     }
 }
