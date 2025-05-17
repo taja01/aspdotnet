@@ -1,0 +1,103 @@
+﻿using LotteryApp.Contracts;
+using LotteryApp.Controllers;
+using LotteryApp.Models;
+using LotteryApp.Repositories;
+using LotteryApp.ResponseDto;
+using LotteryApp.Validations;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Moq;
+
+namespace LotteryAppTests;
+
+public class CheckAllTicketsForLastDrawTests : BaseTest
+{
+    private RequestLotteryTicketValidator _validator;
+    private LotteryController _sut;
+    private Mock<ILogger<LotteryController>> _mockLogger;
+    private Mock<ILotteryTicketRepository> _mockRepository;
+    private Mock<IWinningNumbersRepository> _mockWinningNumbersRepository;
+
+    [SetUp]
+    public void Setup()
+    {
+        _mockLogger = new Mock<ILogger<LotteryController>>();
+        _validator = new RequestLotteryTicketValidator();
+        _mockRepository = new Mock<ILotteryTicketRepository>();
+        _mockWinningNumbersRepository = new Mock<IWinningNumbersRepository>();
+        _sut = new LotteryController(_mockLogger.Object, _validator, _mockRepository.Object, _mockWinningNumbersRepository.Object);
+    }
+
+    [Test]
+    public async Task JackPotTest()
+    {
+        // Arrange
+        List<byte> numbers = [1, 2, 3, 4, 5, 6, 7];
+        var allTickets = new Dictionary<Guid, List<byte>>
+        {
+            { Guid.NewGuid(), numbers }
+        };
+
+        var draw = new Draw
+        {
+            Date = DateTime.Now,
+            Id = Guid.NewGuid(),
+            WinningNumbers = numbers
+        };
+
+        _mockRepository.Setup(m => m.GetAllTicketsAsync()).ReturnsAsync(allTickets);
+        _mockWinningNumbersRepository.Setup(m => m.GetLatestDrawAsync()).ReturnsAsync(draw);
+
+        // Act
+        var response = await _sut.CheckAllTicketsForLastDraw().ConfigureAwait(false);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(response, Is.TypeOf<OkObjectResult>());
+
+            var drawAnalysis = (response as OkObjectResult).Value as List<DrawAnalysis>;
+
+            Assert.That(drawAnalysis[0].Matches, Is.EqualTo(numbers));
+            Assert.That(drawAnalysis[0].WinnerNumbers, Is.EqualTo(numbers));
+            Assert.That(drawAnalysis[0].YourNumbers, Is.EqualTo(numbers));
+            Assert.That(drawAnalysis[0].ResultTier, Is.EqualTo(LotteryResultTier.JackPot));
+        });
+    }
+
+    [Test]
+    public async Task JustMissedTest()
+    {
+        // Arrange
+
+        var allTickets = new Dictionary<Guid, List<byte>>
+        {
+            { Guid.NewGuid(), [1, 2, 3, 4, 5, 6, 7] }
+        };
+
+        var draw = new Draw
+        {
+            Date = DateTime.Now,
+            Id = Guid.NewGuid(),
+            WinningNumbers = [1, 2, 3, 4, 5, 6, 8]
+        };
+
+        _mockRepository.Setup(m => m.GetAllTicketsAsync()).ReturnsAsync(allTickets);
+        _mockWinningNumbersRepository.Setup(m => m.GetLatestDrawAsync()).ReturnsAsync(draw);
+
+        // Act
+        var response = await _sut.CheckAllTicketsForLastDraw().ConfigureAwait(false);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(response, Is.TypeOf<OkObjectResult>());
+
+            var drawAnalysis = (response as OkObjectResult).Value as List<DrawAnalysis>;
+
+
+            Assert.That(drawAnalysis[0].Matches, Is.EqualTo([1, 2, 3, 4, 5, 6]));
+            Assert.That(drawAnalysis[0].WinnerNumbers, Is.EqualTo([1, 2, 3, 4, 5, 6, 8]));
+            Assert.That(drawAnalysis[0].YourNumbers, Is.EqualTo([1, 2, 3, 4, 5, 6, 7]));
+            Assert.That(drawAnalysis[0].ResultTier, Is.EqualTo(LotteryResultTier.JustMissed));
+        });
+    }
+}
