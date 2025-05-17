@@ -5,7 +5,7 @@ namespace LotteryApp.Repositories
 {
     public class InMemoryLotteryTicketRepository : ILotteryTicketRepository
     {
-        private readonly Dictionary<Guid, List<byte>> _tickets = new Dictionary<Guid, List<byte>>();
+        private readonly Dictionary<Guid, List<byte>> _tickets = [];
 
         public Task<Guid> AddTicketAsync(IEnumerable<byte> numbers)
         {
