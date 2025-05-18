@@ -192,6 +192,16 @@ namespace LotteryApp.Controllers
             var winnerNumbers = await winningNumbersRepository.GetLatestDrawAsync();
             var allTickets = await lotteryTicketRepository.GetAllTicketsAsync();
 
+            if (allTickets.Count == 0)
+            {
+                return NotFound(new ErrorResponse { Message = "There is no ticket in the system." });
+            }
+
+            if (winnerNumbers == null)
+            {
+                return NotFound(new ErrorResponse { Message = "No lottery draws have been performed yet." });
+            }
+
             var result = new List<DrawAnalysis>();
 
             foreach (var tickets in allTickets)
