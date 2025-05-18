@@ -29,6 +29,62 @@ public class CheckAllTicketsForLastDrawTests : BaseTest
     }
 
     [Test]
+    public async Task DrawnNeverPerformedTest()
+    {
+        // Arrange
+        List<byte> numbers = [1, 2, 3, 4, 5, 6, 7];
+        var allTickets = new Dictionary<Guid, List<byte>>
+        {
+            { Guid.NewGuid(), numbers }
+        };
+
+        _mockRepository.Setup(m => m.GetAllTicketsAsync()).ReturnsAsync(allTickets);
+        _mockWinningNumbersRepository.Setup(m => m.GetLatestDrawAsync()).ReturnsAsync(() => null);
+
+        // Act
+        var response = await _sut.CheckAllTicketsForLastDraw().ConfigureAwait(false);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(response, Is.TypeOf<NotFoundObjectResult>());
+
+            var notFoundObjectResult = response as NotFoundObjectResult;
+            var validationErrors = notFoundObjectResult.Value as ErrorResponse;
+
+            Assert.That(validationErrors.Message, Is.EqualTo("No lottery draws have been performed yet."));
+        });
+    }
+
+    [Test]
+    public async Task TicketsNotExistsTest()
+    {
+        // Arrange
+
+        var draw = new Draw
+        {
+            Date = DateTime.Now,
+            Id = Guid.NewGuid(),
+            WinningNumbers = [1, 2, 3, 4, 5, 6, 8]
+        };
+
+        _mockRepository.Setup(m => m.GetAllTicketsAsync()).ReturnsAsync([]);
+        _mockWinningNumbersRepository.Setup(m => m.GetLatestDrawAsync()).ReturnsAsync(draw);
+
+        // Act
+        var response = await _sut.CheckAllTicketsForLastDraw().ConfigureAwait(false);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(response, Is.TypeOf<NotFoundObjectResult>());
+
+            var notFoundObjectResult = response as NotFoundObjectResult;
+            var validationErrors = notFoundObjectResult.Value as ErrorResponse;
+
+            Assert.That(validationErrors.Message, Is.EqualTo("There is no ticket in the system."));
+        });
+    }
+
+    [Test]
     public async Task JackPotTest()
     {
         // Arrange
