@@ -279,14 +279,13 @@ namespace LotteryApp.Controllers
                 return StatusCode(StatusCodes.Status406NotAcceptable, new ErrorResponse { Message = "Number should be more or equal than 1" });
             }
 
-            var tasks = new List<Task<Guid>>();
-
-            for (int i = 0; i < numberOfTickets; i++)
-            {
-                var drawnNumbers = DrawNumbers();
-
-                tasks.Add(lotteryTicketRepository.AddTicketAsync(drawnNumbers));
-            }
+            var tasks = Enumerable.Range(0, numberOfTickets)
+                .Select(_ =>
+                {
+                    var drawnNumbers = DrawNumbers();
+                    return lotteryTicketRepository.AddTicketAsync(drawnNumbers);
+                })
+                .ToList();
 
             await Task.WhenAll(tasks);
 
