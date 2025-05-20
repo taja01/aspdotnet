@@ -48,6 +48,7 @@ namespace LotteryApp
             ////builder.Services.AddValidatorsFromAssemblyContaining<RequestLotteryTicketValidator>();
 
             builder.Services.AddSingleton<ILotteryTicketRepository, InMemoryLotteryTicketRepository>();
+            builder.Services.AddSingleton<ILotteryStatistics>(provider => provider.GetRequiredService<ILotteryTicketRepository>());
 
             builder.Services.AddSingleton<IWinningNumbersRepository, InMemoryWinningNumbersRepository>();
 
