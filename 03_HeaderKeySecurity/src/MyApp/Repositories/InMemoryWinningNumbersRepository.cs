@@ -11,7 +11,7 @@ namespace LotteryApp.Repositories
             {
                 Id = Guid.NewGuid(),
                 Date = DateTime.UtcNow,
-                WinningNumbers = numbers
+                Numbers = numbers
             };
 
             lock (_draws)

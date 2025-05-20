@@ -64,7 +64,7 @@ public class CheckAllTicketsForLastDrawTests : BaseTest
         {
             Date = DateTime.Now,
             Id = Guid.NewGuid(),
-            WinningNumbers = [1, 2, 3, 4, 5, 6, 8]
+            Numbers = [1, 2, 3, 4, 5, 6, 8]
         };
 
         _mockRepository.Setup(m => m.GetAllTicketsAsync()).ReturnsAsync([]);
@@ -98,7 +98,7 @@ public class CheckAllTicketsForLastDrawTests : BaseTest
         {
             Date = DateTime.Now,
             Id = Guid.NewGuid(),
-            WinningNumbers = numbers
+            Numbers = numbers
         };
 
         _mockRepository.Setup(m => m.GetAllTicketsAsync()).ReturnsAsync(allTickets);
@@ -111,12 +111,12 @@ public class CheckAllTicketsForLastDrawTests : BaseTest
         {
             Assert.That(response, Is.TypeOf<OkObjectResult>());
 
-            var drawAnalysis = (response as OkObjectResult).Value as List<DrawAnalysis>;
+            var drawResponse = (response as OkObjectResult).Value as DrawResponse;
 
-            Assert.That(drawAnalysis[0].Matches, Is.EqualTo(numbers));
-            Assert.That(drawAnalysis[0].WinnerNumbers, Is.EqualTo(numbers));
-            Assert.That(drawAnalysis[0].YourNumbers, Is.EqualTo(numbers));
-            Assert.That(drawAnalysis[0].ResultTier, Is.EqualTo(LotteryResultTier.JackPot));
+            Assert.That(drawResponse.DrawAnalyses.First().Matches, Is.EqualTo(numbers));
+            Assert.That(drawResponse.WinnerNumbers, Is.EqualTo(numbers));
+            Assert.That(drawResponse.DrawAnalyses.First().YourNumbers, Is.EqualTo(numbers));
+            Assert.That(drawResponse.DrawAnalyses.First().ResultTier, Is.EqualTo(LotteryResultTier.JackPot));
         });
     }
 
@@ -134,7 +134,7 @@ public class CheckAllTicketsForLastDrawTests : BaseTest
         {
             Date = DateTime.Now,
             Id = Guid.NewGuid(),
-            WinningNumbers = [1, 2, 3, 4, 5, 6, 8]
+            Numbers = [1, 2, 3, 4, 5, 6, 8]
         };
 
         _mockRepository.Setup(m => m.GetAllTicketsAsync()).ReturnsAsync(allTickets);
@@ -147,13 +147,12 @@ public class CheckAllTicketsForLastDrawTests : BaseTest
         {
             Assert.That(response, Is.TypeOf<OkObjectResult>());
 
-            var drawAnalysis = (response as OkObjectResult).Value as List<DrawAnalysis>;
+            var drawResponse = (response as OkObjectResult).Value as DrawResponse;
 
-
-            Assert.That(drawAnalysis[0].Matches, Is.EqualTo([1, 2, 3, 4, 5, 6]));
-            Assert.That(drawAnalysis[0].WinnerNumbers, Is.EqualTo([1, 2, 3, 4, 5, 6, 8]));
-            Assert.That(drawAnalysis[0].YourNumbers, Is.EqualTo([1, 2, 3, 4, 5, 6, 7]));
-            Assert.That(drawAnalysis[0].ResultTier, Is.EqualTo(LotteryResultTier.JustMissed));
+            Assert.That(drawResponse.DrawAnalyses.First().Matches, Is.EqualTo([1, 2, 3, 4, 5, 6]));
+            Assert.That(drawResponse.WinnerNumbers, Is.EqualTo([1, 2, 3, 4, 5, 6, 8]));
+            Assert.That(drawResponse.DrawAnalyses.First().YourNumbers, Is.EqualTo([1, 2, 3, 4, 5, 6, 7]));
+            Assert.That(drawResponse.DrawAnalyses.First().ResultTier, Is.EqualTo(LotteryResultTier.JustMissed));
         });
     }
 }

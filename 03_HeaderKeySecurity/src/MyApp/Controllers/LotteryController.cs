@@ -186,10 +186,10 @@ namespace LotteryApp.Controllers
         }
 
         [HttpGet("CheckAllTicketsForLastDraw")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DrawAnalysis))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DrawResponse))]
         public async Task<IActionResult> CheckAllTicketsForLastDraw()
         {
-            var winnerNumbers = await winningNumbersRepository.GetLatestDrawAsync();
+            var winnerNumberDraw = await winningNumbersRepository.GetLatestDrawAsync();
             var allTickets = await lotteryTicketRepository.GetAllTicketsAsync();
 
             if (allTickets.Count == 0)
@@ -197,20 +197,22 @@ namespace LotteryApp.Controllers
                 return NotFound(new ErrorResponse { Message = "There is no ticket in the system." });
             }
 
-            if (winnerNumbers == null)
+            if (winnerNumberDraw == null)
             {
                 return NotFound(new ErrorResponse { Message = "No lottery draws have been performed yet." });
             }
 
-            var result = new List<DrawAnalysis>();
+            var drawResponse = new DrawResponse();
+            drawResponse.WinnerNumbers = winnerNumberDraw.Numbers;
+            drawResponse.DrawAnalyses = new List<DrawAnalysis>();
 
             foreach (var tickets in allTickets)
             {
-                var r = AnalyseNumbers(winnerNumbers, tickets.Value);
-                result.Add(r);
+                var r = AnalyseNumbers(winnerNumberDraw, tickets.Value);
+                drawResponse.DrawAnalyses.Add(r);
             }
 
-            return Ok(result);
+            return Ok(drawResponse);
         }
 
         [HttpGet("CheckTicketsForLastDraw/{id}")]
@@ -249,9 +251,8 @@ namespace LotteryApp.Controllers
         {
             var result = new DrawAnalysis
             {
-                WinnerNumbers = winnerDraw.WinningNumbers,
                 YourNumbers = userNumbers,
-                Matches = [.. userNumbers.Intersect(winnerDraw.WinningNumbers)]
+                Matches = [.. userNumbers.Intersect(winnerDraw.Numbers)]
             };
 
             result.ResultTier = result.Matches.Count switch
