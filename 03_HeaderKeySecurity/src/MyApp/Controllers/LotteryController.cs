@@ -254,6 +254,24 @@ namespace LotteryApp.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("ByTickets")]
+        public async Task<IActionResult> BuyTickets(byte numberOfTickets)
+        {
+            if (numberOfTickets <= 0)
+            {
+                return StatusCode(StatusCodes.Status406NotAcceptable, new ErrorResponse { Message = "Number should be more or equal than 1" });
+            }
+
+            for (int i = 0; i < numberOfTickets; i++)
+            {
+                var n = DrawNumbers();
+                await InsertLotteryTicket(new LotteryRequest { Numbers = n }).ConfigureAwait(false);
+            }
+
+            return Ok();
+        }
+
         private static DrawAnalysis AnalyseNumbers(Draw winnerDraw, List<byte> userNumbers)
         {
             var result = new DrawAnalysis
