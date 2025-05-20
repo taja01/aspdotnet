@@ -216,15 +216,15 @@ namespace LotteryApp.Controllers
         }
 
         [HttpGet("CheckTicketsForLastDraw/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DrawAnalysis))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DrawResponse))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorResponse))]
         public async Task<IActionResult> CheckTicketsForLastDraw(Guid id)
         {
             try
             {
-                var winnerNumbers = await winningNumbersRepository.GetLatestDrawAsync();
-                if (winnerNumbers == null)
+                var winnerDraw = await winningNumbersRepository.GetLatestDrawAsync();
+                if (winnerDraw == null)
                 {
                     logger.LogWarning("Cannot check ticket {TicketId}: No latest draw found.", id);
                     return NotFound(new ErrorResponse { Message = "No lottery draws have been performed yet." });
@@ -237,7 +237,14 @@ namespace LotteryApp.Controllers
                     return NotFound(new ErrorResponse { Message = $"Ticket with ID {id} not found." });
                 }
 
-                var result = AnalyseNumbers(winnerNumbers, ticketNumbers);
+                var analysis = AnalyseNumbers(winnerDraw, ticketNumbers);
+
+                var result = new DrawResponse
+                {
+                    DrawAnalyses = [analysis],
+                    WinnerNumbers = winnerDraw.Numbers,
+                };
+
                 return Ok(result);
             }
             catch (Exception ex)
