@@ -7,6 +7,7 @@ namespace LotteryApp.ResponseDto
         public List<byte> YourNumbers { get; set; }
         public List<byte> Matches { get; set; }
         public LotteryResultTier ResultTier { get; set; }
+        public byte MatchCount { get; internal set; }
 
         public DrawAnalysis()
         {

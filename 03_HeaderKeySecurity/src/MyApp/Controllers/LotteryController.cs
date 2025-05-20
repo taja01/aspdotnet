@@ -189,7 +189,7 @@ namespace LotteryApp.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DrawResponse))]
         public async Task<IActionResult> CheckAllTicketsForLastDraw()
         {
-            var winnerNumberDraw = await winningNumbersRepository.GetLatestDrawAsync();
+            var winnerDraw = await winningNumbersRepository.GetLatestDrawAsync();
             var allTickets = await lotteryTicketRepository.GetAllTicketsAsync();
 
             if (allTickets.Count == 0)
@@ -197,22 +197,36 @@ namespace LotteryApp.Controllers
                 return NotFound(new ErrorResponse { Message = "There is no ticket in the system." });
             }
 
-            if (winnerNumberDraw == null)
+            if (winnerDraw == null)
             {
                 return NotFound(new ErrorResponse { Message = "No lottery draws have been performed yet." });
             }
 
-            var drawResponse = new DrawResponse();
-            drawResponse.WinnerNumbers = winnerNumberDraw.Numbers;
-            drawResponse.DrawAnalyses = new List<DrawAnalysis>();
+            var winnerSet = new HashSet<byte>(winnerDraw.Numbers);
 
-            foreach (var tickets in allTickets)
+            var analyses = allTickets
+                .AsParallel()
+                .Select(ticket => AnalyseNumbers(winnerSet, ticket.Value))
+                .ToList();
+
+            var groupCounts = analyses
+                .GroupBy(a => a.MatchCount)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            var response = new DrawResponse
             {
-                var r = AnalyseNumbers(winnerNumberDraw, tickets.Value);
-                drawResponse.DrawAnalyses.Add(r);
-            }
+                WinnerNumbers = winnerDraw.Numbers,
+                // DrawAnalyses = analyses,
+                One = groupCounts.ContainsKey(1) ? groupCounts[1] : 0,
+                Two = groupCounts.ContainsKey(2) ? groupCounts[2] : 0,
+                Three = groupCounts.ContainsKey(3) ? groupCounts[3] : 0,
+                Four = groupCounts.ContainsKey(4) ? groupCounts[4] : 0,
+                Five = groupCounts.ContainsKey(5) ? groupCounts[5] : 0,
+                Six = groupCounts.ContainsKey(6) ? groupCounts[6] : 0,
+                Seven = groupCounts.ContainsKey(7) ? groupCounts[7] : 0,
+            };
 
-            return Ok(drawResponse);
+            return Ok(response);
         }
 
         [HttpGet("CheckTicketsForLastDraw/{id}")]
@@ -237,7 +251,9 @@ namespace LotteryApp.Controllers
                     return NotFound(new ErrorResponse { Message = $"Ticket with ID {id} not found." });
                 }
 
-                var analysis = AnalyseNumbers(winnerDraw, ticketNumbers);
+                var winnerSet = new HashSet<byte>(winnerDraw.Numbers);
+
+                var analysis = AnalyseNumbers(winnerSet, ticketNumbers);
 
                 var result = new DrawResponse
                 {
@@ -256,31 +272,40 @@ namespace LotteryApp.Controllers
 
         [HttpPost]
         [Route("ByTickets")]
-        public async Task<IActionResult> BuyTickets(byte numberOfTickets)
+        public async Task<IActionResult> BuyTickets(int numberOfTickets)
         {
             if (numberOfTickets <= 0)
             {
                 return StatusCode(StatusCodes.Status406NotAcceptable, new ErrorResponse { Message = "Number should be more or equal than 1" });
             }
 
+            var tasks = new List<Task<Guid>>();
+
             for (int i = 0; i < numberOfTickets; i++)
             {
-                var n = DrawNumbers();
-                await InsertLotteryTicket(new LotteryRequest { Numbers = n }).ConfigureAwait(false);
+                var drawnNumbers = DrawNumbers();
+
+                tasks.Add(lotteryTicketRepository.AddTicketAsync(drawnNumbers));
             }
+
+            await Task.WhenAll(tasks);
 
             return Ok();
         }
 
-        private static DrawAnalysis AnalyseNumbers(Draw winnerDraw, List<byte> userNumbers)
+        private static DrawAnalysis AnalyseNumbers(HashSet<byte> winnerSet, List<byte> userNumbers)
         {
-            var result = new DrawAnalysis
-            {
-                YourNumbers = userNumbers,
-                Matches = [.. userNumbers.Intersect(winnerDraw.Numbers)]
-            };
+            byte matchCount = 0;
 
-            result.ResultTier = result.Matches.Count switch
+            foreach (var num in userNumbers)
+            {
+                if (winnerSet.Contains(num))
+                {
+                    matchCount++;
+                }
+            }
+
+            LotteryResultTier tier = matchCount switch
             {
                 7 => LotteryResultTier.JackPot,
                 6 => LotteryResultTier.JustMissed,
@@ -288,7 +313,13 @@ namespace LotteryApp.Controllers
                 _ => LotteryResultTier.Unlucky
             };
 
-            return result;
+            return new DrawAnalysis
+            {
+                YourNumbers = userNumbers,
+                Matches = userNumbers.Where(n => winnerSet.Contains(n)).ToList(),
+                MatchCount = matchCount,
+                ResultTier = tier
+            };
         }
 
         private static ErrorResponse CreateErrorResponse(IList<FluentValidation.Results.ValidationFailure> errors)
@@ -311,16 +342,18 @@ namespace LotteryApp.Controllers
         {
             var range = LotteryRules.MaxLotteryNumber - LotteryRules.MinLotteryNumber + 1;
             var numbers = Enumerable.Range(LotteryRules.MinLotteryNumber, range).ToList();
-            var luckyNumbers = new List<byte>();
 
-            for (int i = 0; i < LotteryRules.NumberOfBallsToPick; i++)
+            for (int i = numbers.Count - 1; i > 0; i--)
             {
-                var index = RandomNumberGenerator.GetInt32(0, numbers.Count);
-                luckyNumbers.Add((byte)numbers[index]);
-                numbers.RemoveAt(index);
+                int j = RandomNumberGenerator.GetInt32(0, i + 1);
+                (numbers[i], numbers[j]) = (numbers[j], numbers[i]);
             }
+            var drawnNumbers = numbers.Take(LotteryRules.NumberOfBallsToPick)
+                                      .Select(n => (byte)n)
+                                      .OrderBy(n => n)
+                                      .ToList();
 
-            return [.. luckyNumbers.Order()];
+            return drawnNumbers;
         }
     }
 }
