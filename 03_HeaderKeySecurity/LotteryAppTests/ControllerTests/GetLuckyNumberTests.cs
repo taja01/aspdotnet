@@ -10,7 +10,7 @@ using Moq;
 
 namespace LotteryAppTests;
 
-public class GetLuckyNumberTests
+public class GetLuckyNumberTests : BaseTest
 {
     private LotteryController _sut;
     private Mock<ILogger<LotteryController>> _mockLogger;
