@@ -1,6 +1,5 @@
 ﻿using LotteryApp.Contracts;
 using LotteryApp.Controllers;
-using LotteryApp.Models;
 using LotteryApp.Repositories;
 using LotteryApp.ResponseDto;
 using LotteryApp.Validations;
@@ -113,10 +112,11 @@ public class CheckAllTicketsForLastDrawTests : BaseTest
 
             var drawResponse = (response as OkObjectResult).Value as DrawResponse;
 
-            Assert.That(drawResponse.DrawAnalyses.First().Matches, Is.EqualTo(numbers));
+            //  Assert.That(drawResponse.DrawAnalyses.First().Matches, Is.EqualTo(numbers));
             Assert.That(drawResponse.WinnerNumbers, Is.EqualTo(numbers));
-            Assert.That(drawResponse.DrawAnalyses.First().YourNumbers, Is.EqualTo(numbers));
-            Assert.That(drawResponse.DrawAnalyses.First().ResultTier, Is.EqualTo(LotteryResultTier.JackPot));
+            Assert.That(drawResponse.Seven, Is.EqualTo(1));
+            // Assert.That(drawResponse.DrawAnalyses.First().YourNumbers, Is.EqualTo(numbers));
+            //  Assert.That(drawResponse.DrawAnalyses.First().ResultTier, Is.EqualTo(LotteryResultTier.JackPot));
         });
     }
 
@@ -149,10 +149,11 @@ public class CheckAllTicketsForLastDrawTests : BaseTest
 
             var drawResponse = (response as OkObjectResult).Value as DrawResponse;
 
-            Assert.That(drawResponse.DrawAnalyses.First().Matches, Is.EqualTo([1, 2, 3, 4, 5, 6]));
+            //  Assert.That(drawResponse.DrawAnalyses.First().Matches, Is.EqualTo([1, 2, 3, 4, 5, 6]));
             Assert.That(drawResponse.WinnerNumbers, Is.EqualTo([1, 2, 3, 4, 5, 6, 8]));
-            Assert.That(drawResponse.DrawAnalyses.First().YourNumbers, Is.EqualTo([1, 2, 3, 4, 5, 6, 7]));
-            Assert.That(drawResponse.DrawAnalyses.First().ResultTier, Is.EqualTo(LotteryResultTier.JustMissed));
+            Assert.That(drawResponse.Six, Is.EqualTo(1));
+            //  Assert.That(drawResponse.DrawAnalyses.First().YourNumbers, Is.EqualTo([1, 2, 3, 4, 5, 6, 7]));
+            //  Assert.That(drawResponse.DrawAnalyses.First().ResultTier, Is.EqualTo(LotteryResultTier.JustMissed));
         });
     }
 }
