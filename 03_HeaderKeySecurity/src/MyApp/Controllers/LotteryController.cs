@@ -24,14 +24,12 @@ namespace LotteryApp.Controllers
         /// <returns>A random number between 1 and 35.</returns>
         [HttpGet("GetLuckyNumbers")]
         [Authorize(Policy = "ApiKeyPolicy")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RandomNumbersResponse))]
         public IActionResult GetLuckyNumber()
         {
             logger.LogInformation("Generating lucky numbers.");
 
-            var luckyNumbers = DrawNumbers();
-
-            return Ok(luckyNumbers);
+            return Ok(new RandomNumbersResponse { Numbers = DrawNumbers() });
         }
 
         /// <summary>
