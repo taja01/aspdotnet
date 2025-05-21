@@ -3,6 +3,7 @@ using LotteryApp.Controllers;
 using LotteryApp.Repositories;
 using LotteryApp.ResponseDto;
 using LotteryApp.Validations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -47,5 +48,19 @@ public class GetLuckyNumberTests
             Assert.That(numbers, Is.Unique);
             Assert.That(numbers, Is.All.InRange(1, 35));
         });
+    }
+
+    [Test]
+    public void GetLuckyNumber_is_protected_by_ApiKeyPolicy()
+    {
+        var methodInfo = typeof(LotteryController)
+                         .GetMethod(nameof(LotteryController.GetLuckyNumber));
+
+        var attribute = methodInfo!.GetCustomAttributes(typeof(AuthorizeAttribute), false)
+                                   .Cast<AuthorizeAttribute>()
+                                   .SingleOrDefault();
+
+        Assert.That(attribute, Is.Not.Null);
+        Assert.That(attribute!.Policy, Is.EqualTo("ApiKeyPolicy"));
     }
 }
